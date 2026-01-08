@@ -250,6 +250,28 @@ export function exportDatabase(): Uint8Array {
   return db.export();
 }
 
+export function importDatabase(data: Uint8Array): void {
+  if (!SQL) throw new Error('SQL.js not initialized');
+  
+  // Close existing database
+  if (db) {
+    try {
+      // Can't call close() on sql.js, just discard the reference
+    } catch (e) {
+      console.warn('Error closing existing database:', e);
+    }
+  }
+  
+  // Create new database from imported data
+  db = new SQL.Database(data);
+  
+  // Run migrations to ensure all tables exist
+  migrateDatabase();
+  
+  // Save to localStorage
+  saveDatabase();
+}
+
 function query<T>(sql: string, params: unknown[] = []): T[] {
   const database = getDatabase();
   const stmt = database.prepare(sql);

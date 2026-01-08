@@ -43,9 +43,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { exportToCSV, exportToJSON, exportFullDatabase, downloadFile, generatePDFReport } from '@/lib/export';
 import { ImportDialog } from '@/components/stakeholders/ImportDialog';
+import { ImportDatabaseDialog } from '@/components/stakeholders/ImportDatabaseDialog';
 import { TagsManagerDialog } from '@/components/stakeholders/TagsManagerDialog';
 import { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog';
-import { Keyboard } from 'lucide-react';
+import { Keyboard, HardDriveDownload } from 'lucide-react';
 
 export function Header() {
   const {
@@ -62,6 +63,7 @@ export function Header() {
 
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importDatabaseDialogOpen, setImportDatabaseDialogOpen] = useState(false);
   const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
   const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
   const [projectName, setProjectName] = useState('');
@@ -271,6 +273,12 @@ export function Header() {
               <Database className="mr-2 h-4 w-4" />
               Full Database
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground">Import</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => setImportDatabaseDialogOpen(true)}>
+              <HardDriveDownload className="mr-2 h-4 w-4" />
+              Load Database Backup
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -318,8 +326,11 @@ export function Header() {
         </DialogContent>
       </Dialog>
 
-      {/* Import Dialog */}
+      {/* Import Dialog (CSV) */}
       <ImportDialog open={importDialogOpen} onOpenChange={setImportDialogOpen} />
+
+      {/* Import Database Dialog */}
+      <ImportDatabaseDialog open={importDatabaseDialogOpen} onOpenChange={setImportDatabaseDialogOpen} />
 
       {/* Tags Manager Dialog */}
       <TagsManagerDialog open={tagsDialogOpen} onOpenChange={setTagsDialogOpen} />
