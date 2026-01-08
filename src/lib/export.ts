@@ -71,9 +71,15 @@ export function exportFullDatabase(): Uint8Array {
 }
 
 export function downloadFile(content: string | Uint8Array, filename: string, type: string) {
-  const blob = content instanceof Uint8Array
-    ? new Blob([content], { type })
-    : new Blob([content], { type });
+  let blob: Blob;
+  if (content instanceof Uint8Array) {
+    const buffer = new ArrayBuffer(content.length);
+    const view = new Uint8Array(buffer);
+    view.set(content);
+    blob = new Blob([buffer], { type });
+  } else {
+    blob = new Blob([content], { type });
+  }
   
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

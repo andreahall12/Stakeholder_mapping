@@ -3,6 +3,323 @@ import { executeRawQuery, engagementLogsRepo, stakeholderHistoryRepo } from '@/d
 
 const OLLAMA_BASE_URL = 'http://localhost:11434';
 
+// Built-in help responses for "how do I" questions
+const HELP_RESPONSES: Record<string, string> = {
+  'add stakeholder': `**How to Add a Stakeholder:**
+
+1. Click the **"New"** button in the right sidebar
+2. Fill in the stakeholder details:
+   - **Name** (required)
+   - **Job Title** (optional)
+   - **Department** (optional)
+   - **Email** and **Slack** (optional)
+3. Set their **Influence Level**: High, Medium, or Low
+4. Set their **Support Level**: Champion, Supporter, Neutral, or Resistant
+5. Add any **Notes** about this person
+6. Click **Save**
+
+**Quick Tip:** You can also click **"AI Add"** and type naturally like "John Smith, VP of Engineering, high influence, champion"`,
+
+  'create stakeholder': `**How to Add a Stakeholder:**
+
+1. Click the **"New"** button in the right sidebar
+2. Fill in the stakeholder details (name, title, department, contact info)
+3. Set their **Influence Level** and **Support Level**
+4. Click **Save**
+
+**Quick Tip:** Use **"AI Add"** to type naturally: "Jane Doe, Product Manager, medium influence, supporter"`,
+
+  'import csv': `**How to Import Stakeholders from CSV:**
+
+1. Click the **Upload icon** (arrow pointing up) in the top header bar
+2. Click **"Choose File"** and select your CSV file
+3. Your CSV should have columns like: Name, Job Title, Department, Email
+4. The tool will show a preview of the data
+5. Click **Import** to add all stakeholders
+
+**CSV Format Example:**
+\`\`\`
+Name,Job Title,Department,Email
+John Smith,VP Engineering,Engineering,john@example.com
+Jane Doe,Product Manager,Product,jane@example.com
+\`\`\``,
+
+  'import spreadsheet': `**How to Import from a Spreadsheet:**
+
+1. In Excel or Google Sheets, save your file as **CSV** format
+2. Click the **Upload icon** in the header
+3. Select your CSV file
+4. Review the preview and click **Import**
+
+Your spreadsheet should have columns: Name, Job Title, Department, Email (at minimum)`,
+
+  'export': `**How to Export Your Data:**
+
+1. Click the **three-dot menu** (⋮) in the top-right header
+2. Choose your export format:
+   - **Export CSV** - Opens in Excel/Google Sheets (stakeholders, RACI, comm plans)
+   - **Export JSON** - For backup or transferring to another system
+   - **Export PDF Report** - Formatted stakeholder landscape document
+   - **Export Database** - Complete backup of all your data
+
+**Tip:** Use "Export Database" regularly to back up your work!`,
+
+  'raci': `**How to Use the RACI Matrix:**
+
+1. Click the **"RACI Matrix"** tab at the top
+2. You'll see a grid with stakeholders as columns and workstreams as rows
+3. Click on any cell to set a role:
+   - **R** = Responsible (does the work)
+   - **A** = Accountable (owns the outcome)
+   - **C** = Consulted (provides input)
+   - **I** = Informed (kept updated)
+4. Click the role again to change or remove it
+
+**Tip:** The Dashboard shows RACI gaps - workstreams missing R or A roles.`,
+
+  'set raci': `**How to Assign RACI Roles:**
+
+1. Go to the **RACI Matrix** tab
+2. Find the stakeholder column and workstream row
+3. Click the cell where they intersect
+4. Select R, A, C, or I from the menu
+5. The role is saved automatically
+
+Each workstream should have at least one **R** (Responsible) and one **A** (Accountable).`,
+
+  'communication plan': `**How to Set a Communication Plan:**
+
+1. Click on a **stakeholder card** to open the edit dialog
+2. Scroll down to the **Communication Plan** section
+3. Select a **Channel**: Email, Slack, Meeting, Jira, or Briefing
+4. Select a **Frequency**: Daily, Weekly, Biweekly, Monthly, Quarterly, or As-needed
+5. Add any **Notes** about how to communicate with them
+6. Click **Save**
+
+The Dashboard will alert you when you're overdue based on this plan.`,
+
+  'log engagement': `**How to Log an Engagement:**
+
+1. Find the stakeholder card in the right sidebar
+2. Click the **clipboard icon** on their card
+3. Select the type: Meeting, Email, Call, Decision, or Note
+4. Enter the **date** of the interaction
+5. Write a brief **summary** of what happened
+6. Set the **sentiment**: Positive, Neutral, or Negative
+7. Click **Save**
+
+This updates their "last contact" date and helps track your relationship history.`,
+
+  'track meeting': `**How to Track a Meeting:**
+
+1. Click the **clipboard icon** on the stakeholder's card
+2. Select **"Meeting"** as the type
+3. Enter the date and a summary
+4. Set the sentiment (how did it go?)
+5. Click **Save**`,
+
+  'filter': `**How to Filter Stakeholders:**
+
+1. Click the **"Filter"** button above the stakeholder list
+2. Use the dropdowns to filter by:
+   - **Influence Level**: High, Medium, Low
+   - **Support Level**: Champion, Supporter, Neutral, Resistant
+   - **Department**: Based on your stakeholders
+   - **Tag**: Custom tags you've created
+3. Filters apply immediately
+
+**To Save a Filter:**
+1. Apply your desired filters
+2. Click **Filter** dropdown → **"Save Current Filter"**
+3. Give it a name like "Engineering Blockers"
+4. Access it anytime from the Filter dropdown`,
+
+  'tag': `**How to Use Tags:**
+
+1. Click the **Tag icon** in the header to manage tags
+2. Create tags like "Executive Team", "Technical", "External"
+3. Choose a color for each tag
+4. To assign tags to a stakeholder, edit the stakeholder and select tags
+5. Filter the list by tag using the Filter button`,
+
+  'anonymous': `**How to Use Anonymous Mode:**
+
+1. Click the **Eye icon** in the top header bar
+2. All stakeholder names become "Stakeholder A", "Stakeholder B", etc.
+3. This affects all views (Dashboard, Network, RACI, etc.)
+4. Click the Eye icon again to reveal real names
+
+**Use this for:** Presentations, screenshots, or discussing sensitive situations`,
+
+  'presentation mode': `**How to Hide Names for Presentations:**
+
+1. Click the **Eye icon** in the header
+2. Names become "Stakeholder A", "Stakeholder B", etc.
+3. Click again to show real names
+
+This is perfect for discussing stakeholder dynamics without revealing identities.`,
+
+  'scenario': `**How to Use Scenario Planning:**
+
+1. Go to the **Dashboard** view
+2. Click the **"Scenario Planning"** button
+3. Select a stakeholder from the dropdown
+4. Adjust their simulated **Influence** or **Support** level
+5. See how the metrics change
+
+**Note:** This is for planning only - it doesn't change your real data.`,
+
+  'bulk': `**How to Perform Bulk Operations:**
+
+1. Click the **"Bulk"** button in the sidebar
+2. Check the boxes next to stakeholders you want to update
+3. Choose an action:
+   - **Update Field** - Change influence, support, or department for all
+   - **Add Tag** - Apply a tag to all selected
+   - **Delete** - Remove all selected (be careful!)
+4. Click **Apply**`,
+
+  'workstream': `**How to Create a Workstream:**
+
+1. Look for the **"Workstreams"** count in the sidebar
+2. Click the **folder icon** next to it
+3. Click **"Add Workstream"**
+4. Enter a name and optional description
+5. Click **Save**
+
+Workstreams appear as rows in the RACI Matrix.`,
+
+  'views': `**How to Switch Between Views:**
+
+Use the tabs at the top of the main area:
+
+- **Dashboard** - Overview with KPIs, alerts, and quick actions
+- **Network** - Visual graph showing stakeholder connections
+- **Influence Matrix** - 2x2 grid (influence vs support)
+- **Org Chart** - Hierarchical structure
+- **RACI Matrix** - Responsibility assignments
+
+**Keyboard Shortcut:** Press **Ctrl/Cmd + 1-5** to switch views quickly`,
+
+  'keyboard': `**Keyboard Shortcuts:**
+
+| Shortcut | Action |
+|----------|--------|
+| Cmd/Ctrl + / | Show this help |
+| Cmd/Ctrl + N | New stakeholder |
+| Cmd/Ctrl + F | Focus search |
+| Escape | Close dialogs |
+
+Press **Cmd/Ctrl + /** anytime to see the shortcuts panel.`,
+
+  'search': `**How to Search for Stakeholders:**
+
+1. Click in the **search box** at the top of the sidebar
+2. Type any part of a stakeholder's name
+3. The list filters instantly as you type
+4. Clear the search box to see all stakeholders again
+
+**Tip:** Press **Cmd/Ctrl + F** to quickly focus the search box.`,
+
+  'delete': `**How to Delete a Stakeholder:**
+
+1. Click on the stakeholder card to open the edit dialog
+2. Scroll to the bottom
+3. Click the **"Delete"** button (usually red)
+4. Confirm the deletion
+
+**Warning:** This cannot be undone. Export a backup first if unsure.`,
+
+  'meeting brief': `**How to Generate a Meeting Brief:**
+
+1. Open the **AI Chat** (chat bubble icon)
+2. Type: **"Prepare brief for [Name]"**
+   - Example: "Prepare brief for John Smith"
+3. The AI generates a summary including:
+   - Their profile and role
+   - RACI assignments
+   - Recent interactions
+   - Suggested talking points
+
+**Note:** Requires Ollama running for AI-powered briefs.`,
+};
+
+// Detect if a query is asking for help
+function detectHelpIntent(query: string): string | null {
+  const lowerQuery = query.toLowerCase().trim();
+  
+  // Check for "how do I", "how to", "how can I", etc.
+  if (!lowerQuery.match(/^(how (do|can|should|would) i|how to|where (do|can) i|what('s| is) the (way|best way) to|help( me)? with|show me how|tell me how|explain how)/)) {
+    return null;
+  }
+  
+  // Match against help topics
+  const topicMatches: [RegExp, string][] = [
+    [/add(ing)?\s+(a\s+)?stakeholder/i, 'add stakeholder'],
+    [/create\s+(a\s+)?stakeholder/i, 'create stakeholder'],
+    [/new\s+stakeholder/i, 'add stakeholder'],
+    [/import.*(csv|spreadsheet|excel)/i, 'import csv'],
+    [/csv\s+import/i, 'import csv'],
+    [/upload.*(csv|stakeholder|data)/i, 'import csv'],
+    [/export/i, 'export'],
+    [/download.*(data|backup|csv)/i, 'export'],
+    [/backup/i, 'export'],
+    [/raci\s*(matrix|role|assign)/i, 'raci'],
+    [/set\s+(a\s+)?raci/i, 'set raci'],
+    [/(assign|add)\s+raci/i, 'set raci'],
+    [/responsible|accountable|consulted|informed/i, 'raci'],
+    [/communication\s*(plan|schedule)/i, 'communication plan'],
+    [/set\s+(up\s+)?(a\s+)?comm/i, 'communication plan'],
+    [/contact\s+frequency/i, 'communication plan'],
+    [/log\s+(an?\s+)?(engagement|interaction|meeting|call|email)/i, 'log engagement'],
+    [/record\s+(an?\s+)?(meeting|call|interaction)/i, 'log engagement'],
+    [/track\s+(an?\s+)?meeting/i, 'track meeting'],
+    [/filter/i, 'filter'],
+    [/search/i, 'search'],
+    [/find\s+stakeholder/i, 'search'],
+    [/tag/i, 'tag'],
+    [/label/i, 'tag'],
+    [/categorize/i, 'tag'],
+    [/anonymous/i, 'anonymous'],
+    [/hide\s+(name|identit)/i, 'anonymous'],
+    [/presentation\s+mode/i, 'presentation mode'],
+    [/scenario/i, 'scenario'],
+    [/what.if/i, 'scenario'],
+    [/bulk/i, 'bulk'],
+    [/multiple\s+stakeholder/i, 'bulk'],
+    [/mass\s+(update|edit|delete)/i, 'bulk'],
+    [/workstream/i, 'workstream'],
+    [/(switch|change|use)\s+(the\s+)?view/i, 'views'],
+    [/different\s+view/i, 'views'],
+    [/keyboard/i, 'keyboard'],
+    [/shortcut/i, 'keyboard'],
+    [/delete\s+(a\s+)?stakeholder/i, 'delete'],
+    [/remove\s+(a\s+)?stakeholder/i, 'delete'],
+    [/meeting\s+brief/i, 'meeting brief'],
+    [/prepare\s+for\s+(a\s+)?meeting/i, 'meeting brief'],
+  ];
+  
+  for (const [regex, topic] of topicMatches) {
+    if (regex.test(lowerQuery)) {
+      return topic;
+    }
+  }
+  
+  return null;
+}
+
+// Get help response for a topic
+function getHelpResponse(topic: string): string {
+  return HELP_RESPONSES[topic] || `I'm not sure how to help with that specific topic. Try asking:
+- "How do I add a stakeholder?"
+- "How do I use the RACI matrix?"
+- "How do I export my data?"
+- "How do I filter stakeholders?"
+- "How do I log an engagement?"
+
+Or ask about your stakeholder data, like "Who is responsible for design?"`;
+}
+
 interface OllamaResponse {
   model: string;
   response: string;
@@ -100,7 +417,15 @@ export async function processQuery(
   },
   model: string = 'llama3.2'
 ): Promise<ChatResponse> {
-  // Check for special commands first
+  // Check for help/how-to questions first (no AI needed)
+  const helpTopic = detectHelpIntent(userQuery);
+  if (helpTopic) {
+    return {
+      content: getHelpResponse(helpTopic),
+    };
+  }
+  
+  // Check for special commands
   const command = detectSpecialCommand(userQuery);
   
   if (command.type === 'meeting_brief' && command.target) {

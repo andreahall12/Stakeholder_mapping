@@ -4,17 +4,296 @@ A powerful desktop application designed for **program managers** to identify, tr
 
 ---
 
-## Quick Start (5 Minutes)
+## Table of Contents
 
-1. **Download** the project from GitHub
-2. **Open Terminal** and navigate to the folder
-3. **Run these commands:**
-   ```bash
-   npm install
-   npm run dev -- --port 5173
+- [Download and Install](#download-and-install)
+  - [Windows](#windows)
+  - [macOS](#macos)
+  - [Linux](#linux)
+  - [Download ZIP (No Git Required)](#download-zip-no-git-required)
+- [What This Tool Does](#what-this-tool-does)
+- [Features Guide](#features-guide)
+- [Using the Application](#using-the-application)
+- [AI Chat Assistant](#ai-chat-assistant)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
+- [Troubleshooting](#troubleshooting)
+- [For Developers](#for-developers)
+
+---
+
+## Download and Install
+
+Choose your operating system below for step-by-step instructions.
+
+---
+
+### Windows
+
+#### Step 1: Install Node.js
+
+1. Go to **https://nodejs.org**
+2. Click the **LTS** (Long Term Support) download button
+3. Run the downloaded `.msi` file
+4. Follow the installer prompts (click Next, accept defaults)
+5. **Important:** Check the box for "Automatically install necessary tools" if shown
+6. Click **Install**, then **Finish**
+
+To verify it worked, open **Command Prompt**:
+- Press `Windows + R`, type `cmd`, press Enter
+- Type `node --version` and press Enter
+- You should see a version number like `v20.x.x`
+
+#### Step 2: Install Git (Optional but Recommended)
+
+1. Go to **https://git-scm.com/download/win**
+2. Click **"Click here to download"**
+3. Run the installer
+4. Accept all default options (just keep clicking Next)
+5. Click **Install**, then **Finish**
+
+#### Step 3: Download the Project
+
+**Option A - Using Git (Recommended):**
+
+1. Open **Command Prompt** (press `Windows + R`, type `cmd`, press Enter)
+2. Navigate to where you want the project:
    ```
-4. **Open browser** to: http://localhost:5173
-5. **Click "Add Sample Data"** to explore with demo data
+   cd C:\Users\YourName\Documents
+   ```
+3. Clone the repository:
+   ```
+   git clone https://github.com/andreahall12/Stakeholder_mapping.git
+   ```
+4. Enter the project folder:
+   ```
+   cd Stakeholder_mapping
+   ```
+
+**Option B - Download ZIP (see [Download ZIP section](#download-zip-no-git-required))**
+
+#### Step 4: Install Dependencies
+
+In Command Prompt (inside the project folder):
+```
+npm install
+```
+Wait 1-2 minutes for it to complete.
+
+#### Step 5: Start the Application
+
+```
+npm run dev -- --port 5173
+```
+
+#### Step 6: Open the App
+
+Open your web browser (Chrome, Firefox, or Edge) and go to:
+```
+http://localhost:5173
+```
+
+**You are done! Click "Add Sample Data" to explore the app.**
+
+---
+
+### macOS
+
+#### Step 1: Open Terminal
+
+- Press `Cmd + Space` to open Spotlight
+- Type `Terminal` and press Enter
+
+#### Step 2: Install Homebrew (Package Manager)
+
+If you do not have Homebrew installed, paste this command and press Enter:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+Follow the prompts. You may need to enter your password.
+
+After installation, run:
+```bash
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+#### Step 3: Install Node.js and Git
+
+```bash
+brew install node git
+```
+
+To verify:
+```bash
+node --version
+git --version
+```
+
+#### Step 4: Download the Project
+
+1. Navigate to your Documents folder:
+   ```bash
+   cd ~/Documents
+   ```
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/andreahall12/Stakeholder_mapping.git
+   ```
+3. Enter the project folder:
+   ```bash
+   cd Stakeholder_mapping
+   ```
+
+#### Step 5: Install Dependencies
+
+```bash
+npm install
+```
+Wait 1-2 minutes.
+
+#### Step 6: Start the Application
+
+```bash
+npm run dev -- --port 5173
+```
+
+#### Step 7: Open the App
+
+Open **Safari**, **Chrome**, or **Firefox** and go to:
+```
+http://localhost:5173
+```
+
+**You are done! Click "Add Sample Data" to explore the app.**
+
+---
+
+### Linux
+
+These instructions work for Ubuntu, Debian, Fedora, and most distributions.
+
+#### Step 1: Open Terminal
+
+- Press `Ctrl + Alt + T` on most systems
+
+#### Step 2: Install Node.js
+
+**Ubuntu/Debian:**
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+**Fedora:**
+```bash
+sudo dnf install nodejs npm
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S nodejs npm
+```
+
+Verify installation:
+```bash
+node --version
+npm --version
+```
+
+#### Step 3: Install Git
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install git
+```
+
+**Fedora:**
+```bash
+sudo dnf install git
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S git
+```
+
+#### Step 4: Download the Project
+
+```bash
+cd ~
+git clone https://github.com/andreahall12/Stakeholder_mapping.git
+cd Stakeholder_mapping
+```
+
+#### Step 5: Install Dependencies
+
+```bash
+npm install
+```
+
+#### Step 6: Start the Application
+
+```bash
+npm run dev -- --port 5173
+```
+
+#### Step 7: Open the App
+
+Open your browser and go to:
+```
+http://localhost:5173
+```
+
+**You are done! Click "Add Sample Data" to explore the app.**
+
+---
+
+### Download ZIP (No Git Required)
+
+If you prefer not to use Git, you can download the project as a ZIP file.
+
+#### Step 1: Download the ZIP
+
+1. Go to **https://github.com/andreahall12/Stakeholder_mapping**
+2. Click the green **"Code"** button
+3. Click **"Download ZIP"**
+4. Save the file to your Downloads folder
+
+#### Step 2: Extract the ZIP
+
+**Windows:**
+- Right-click the ZIP file
+- Click **"Extract All..."**
+- Choose a location (like Documents)
+- Click **Extract**
+
+**macOS:**
+- Double-click the ZIP file
+- It extracts automatically to the same folder
+
+**Linux:**
+```bash
+unzip Stakeholder_mapping-main.zip
+```
+
+#### Step 3: Open Terminal/Command Prompt in the Folder
+
+**Windows:**
+- Open the extracted folder
+- Click in the address bar, type `cmd`, press Enter
+
+**macOS:**
+- Open Terminal
+- Type `cd ` (with a space), then drag the folder into Terminal
+- Press Enter
+
+**Linux:**
+- Right-click in the folder, select "Open Terminal Here"
+- Or use `cd /path/to/Stakeholder_mapping-main`
+
+#### Step 4: Continue from Step 4 Above
+
+Follow the **Install Dependencies** step for your operating system above.
 
 ---
 
@@ -30,7 +309,7 @@ A powerful desktop application designed for **program managers** to identify, tr
 
 ---
 
-## Core Features
+## Features Guide
 
 ### Views
 - **Dashboard** - KPIs, alerts, and quick actions at a glance
@@ -57,41 +336,7 @@ A powerful desktop application designed for **program managers** to identify, tr
 - **Scenario Planning** - Model "what if" support level changes
 - **Anonymous Mode** - Hide names for presentations
 - **Keyboard Shortcuts** - Press Cmd/Ctrl + / for help
-- **AI Chat** - Ask questions like "Who should I email weekly?"
-
----
-
-## Installation
-
-### Prerequisites
-- **Node.js 18+** - Download from https://nodejs.org
-- **npm** - Comes with Node.js
-
-### Steps
-```bash
-# Clone the repository
-git clone https://github.com/andreahall12/Stakeholder_mapping.git
-cd Stakeholder_mapping
-
-# Install dependencies (first time only)
-npm install
-
-# Start the application
-npm run dev -- --port 5173
-```
-
-Open http://localhost:5173 in your browser.
-
-### For Desktop App (Optional)
-Requires Rust from https://rustup.rs
-```bash
-npm run tauri build
-```
-
-### For AI Chat (Optional)
-1. Install Ollama from https://ollama.ai
-2. Run: `ollama serve`
-3. Run: `ollama pull llama3.2`
+- **AI Chat** - Ask questions about your data AND how to use the tool
 
 ---
 
@@ -127,6 +372,44 @@ npm run tauri build
 
 ---
 
+## AI Chat Assistant
+
+The AI chat can answer two types of questions:
+
+### 1. Questions About Your Data
+- "Who is responsible for design?"
+- "List all high-influence stakeholders"
+- "Who should I email weekly?"
+- "Show me resistant stakeholders in Engineering"
+- "Prepare a meeting brief for John Smith"
+- "Who have I neglected?"
+
+### 2. Questions About Using the Tool
+- "How do I add a stakeholder?"
+- "How do I export my data?"
+- "How do I use the RACI matrix?"
+- "How do I set up a communication plan?"
+- "How do I filter by department?"
+
+**For "how do I" questions, you get instant answers without needing Ollama.**
+
+### Setting Up AI for Data Questions (Optional)
+
+To use AI for data-related questions:
+
+1. **Install Ollama** from https://ollama.ai
+2. **Start Ollama** (in Terminal/Command Prompt):
+   ```
+   ollama serve
+   ```
+3. **Download a model**:
+   ```
+   ollama pull llama3.2
+   ```
+4. The chat will connect automatically
+
+---
+
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
@@ -140,37 +423,47 @@ npm run tauri build
 
 ## Troubleshooting
 
-**"Site cannot be reached"** - Restart the dev server:
-```bash
+### "Site cannot be reached"
+The server stopped. Restart it:
+```
 npm run dev -- --port 5173
 ```
 
-**"npm not found"** - Install Node.js from https://nodejs.org
+### "npm not found" or "node not found"
+Node.js is not installed or not in your PATH. Reinstall from https://nodejs.org
 
-**"Port in use"** - Use different port:
-```bash
+### "Port 5173 is already in use"
+Use a different port:
+```
 npm run dev -- --port 3000
 ```
+Then go to http://localhost:3000
 
-**Data disappeared** - Data is in browser localStorage. Export backups regularly.
+### "git is not recognized"
+Git is not installed. Download from https://git-scm.com or use the ZIP download method.
+
+### "My data disappeared"
+Data is stored in your browser. It persists unless you:
+- Clear browser data
+- Use a different browser
+- Use incognito mode
+
+**Tip:** Export backups regularly via Menu > Export > Full Backup
 
 ---
 
-## Documentation
+## For Developers
 
 - [REQUIREMENTS.md](REQUIREMENTS.md) - Functional and non-functional requirements
 - [docs/TECHNICAL.md](docs/TECHNICAL.md) - Architecture and developer guide
 
----
-
-## Tech Stack
-
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI**: Tailwind CSS + shadcn/ui
-- **Database**: sql.js (SQLite in WebAssembly)
-- **Visualizations**: React Flow, Mermaid
-- **Desktop**: Tauri 2.0
-- **AI**: Ollama (local LLM)
+### Tech Stack
+- React 18 + TypeScript + Vite
+- Tailwind CSS + shadcn/ui
+- sql.js (SQLite in WebAssembly)
+- React Flow + Mermaid
+- Tauri 2.0 (desktop)
+- Ollama (local AI)
 
 ---
 
