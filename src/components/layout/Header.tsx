@@ -221,15 +221,16 @@ export function Header() {
           {anonymousMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </Button>
 
-        {/* AI Auditor */}
+        {/* AI Chat Assistant */}
         <Button
           variant={chatOpen ? 'default' : 'outline'}
           size="sm"
           onClick={toggleChat}
           className="gap-2 h-9"
+          title="Ask questions about your stakeholders"
         >
           <MessageSquare className="h-4 w-4" />
-          AI Auditor
+          AI Chat
         </Button>
 
         {/* Import Button */}
