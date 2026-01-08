@@ -23,10 +23,15 @@ import {
   Plus,
   MessageSquare,
   Download,
+  Upload,
   FileJson,
   FileSpreadsheet,
   Database,
   Users,
+  Eye,
+  EyeOff,
+  Tags,
+  FileText,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -36,7 +41,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { exportToCSV, exportToJSON, exportFullDatabase, downloadFile } from '@/lib/export';
+import { exportToCSV, exportToJSON, exportFullDatabase, downloadFile, generatePDFReport } from '@/lib/export';
+import { ImportDialog } from '@/components/stakeholders/ImportDialog';
+import { TagsManagerDialog } from '@/components/stakeholders/TagsManagerDialog';
+import { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog';
+import { Keyboard } from 'lucide-react';
 
 export function Header() {
   const {
@@ -47,9 +56,14 @@ export function Header() {
     chatOpen,
     toggleChat,
     projectStakeholders,
+    anonymousMode,
+    toggleAnonymousMode,
   } = useStore();
 
   const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
+  const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
 
@@ -94,6 +108,16 @@ export function Header() {
     downloadFile(csvData.stakeholders, `stakeholders-${dateStr}.csv`, 'text/csv');
     downloadFile(csvData.raci, `raci-matrix-${dateStr}.csv`, 'text/csv');
     downloadFile(csvData.commPlans, `comm-plans-${dateStr}.csv`, 'text/csv');
+  };
+
+  const handleExportPDF = () => {
+    if (!currentProjectId) return;
+    const html = generatePDFReport(currentProjectId);
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+    }
   };
 
   return (
@@ -164,6 +188,40 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Keyboard Shortcuts */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShortcutsDialogOpen(true)}
+          className="h-9 w-9"
+          title="Keyboard shortcuts"
+        >
+          <Keyboard className="h-4 w-4" />
+        </Button>
+
+        {/* Tags Manager */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setTagsDialogOpen(true)}
+          className="gap-2 h-9"
+        >
+          <Tags className="h-4 w-4" />
+          Tags
+        </Button>
+
+        {/* Anonymous Mode Toggle */}
+        <Button
+          variant={anonymousMode ? 'default' : 'outline'}
+          size="icon"
+          onClick={toggleAnonymousMode}
+          className="h-9 w-9"
+          title={anonymousMode ? 'Show names' : 'Hide names (presentation mode)'}
+        >
+          {anonymousMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </Button>
+
+        {/* AI Auditor */}
         <Button
           variant={chatOpen ? 'default' : 'outline'}
           size="sm"
@@ -174,6 +232,18 @@ export function Header() {
           AI Auditor
         </Button>
 
+        {/* Import Button */}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setImportDialogOpen(true)}
+          className="h-9 w-9"
+          title="Import stakeholders from CSV"
+        >
+          <Upload className="h-4 w-4" />
+        </Button>
+
+        {/* Export Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" className="h-9 w-9">
@@ -183,6 +253,10 @@ export function Header() {
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel className="text-xs text-muted-foreground">Export</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleExportPDF} disabled={!currentProjectId}>
+              <FileText className="mr-2 h-4 w-4" />
+              PDF Report
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleExportJSON} disabled={!currentProjectId}>
               <FileJson className="mr-2 h-4 w-4" />
               Project (JSON)
@@ -200,6 +274,7 @@ export function Header() {
         </DropdownMenu>
       </div>
 
+      {/* New Project Dialog */}
       <Dialog open={newProjectOpen} onOpenChange={setNewProjectOpen}>
         <DialogContent className="bg-card border-border">
           <DialogHeader>
@@ -241,6 +316,15 @@ export function Header() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Import Dialog */}
+      <ImportDialog open={importDialogOpen} onOpenChange={setImportDialogOpen} />
+
+      {/* Tags Manager Dialog */}
+      <TagsManagerDialog open={tagsDialogOpen} onOpenChange={setTagsDialogOpen} />
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog open={shortcutsDialogOpen} onOpenChange={setShortcutsDialogOpen} />
     </header>
   );
 }

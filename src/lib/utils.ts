@@ -9,6 +9,32 @@ export function generateId(): string {
   return crypto.randomUUID();
 }
 
+// Anonymize a name for presentation mode
+const anonymousCache = new Map<string, string>();
+let anonymousCounter = 1;
+
+export function anonymizeName(name: string, title?: string): string {
+  if (anonymousCache.has(name)) {
+    return anonymousCache.get(name)!;
+  }
+  const anonymized = title 
+    ? `${title} (Stakeholder #${anonymousCounter})`
+    : `Stakeholder #${anonymousCounter}`;
+  anonymousCache.set(name, anonymized);
+  anonymousCounter++;
+  return anonymized;
+}
+
+export function resetAnonymousCache() {
+  anonymousCache.clear();
+  anonymousCounter = 1;
+}
+
+export function getDisplayName(name: string, anonymousMode: boolean, title?: string): string {
+  if (!anonymousMode) return name;
+  return anonymizeName(name, title);
+}
+
 export function formatDate(date: string | Date): string {
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',

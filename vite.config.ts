@@ -19,6 +19,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['sql.js'],
+    include: ['mermaid', 'd3-sankey'],
   },
   build: {
     target: ['es2021', 'chrome100', 'safari13'],
@@ -26,6 +27,14 @@ export default defineConfig({
     sourcemap: !!process.env.TAURI_DEBUG,
     commonjsOptions: {
       include: [/sql\.js/, /node_modules/],
+    },
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Suppress certain warnings
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+        if (warning.message.includes('d3-sankey')) return;
+        warn(warning);
+      },
     },
   },
 })

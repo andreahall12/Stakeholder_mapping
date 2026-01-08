@@ -1,9 +1,10 @@
 import { useStore } from '@/store';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Network, Grid3X3, GitBranch, Table2 } from 'lucide-react';
+import { LayoutDashboard, Network, Grid3X3, GitBranch, Table2 } from 'lucide-react';
 import type { ViewType } from '@/types';
 
 const views: { id: ViewType; label: string; icon: React.ReactNode }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
   { id: 'network', label: 'Network', icon: <Network className="h-4 w-4" /> },
   { id: 'influence', label: 'Influence Matrix', icon: <Grid3X3 className="h-4 w-4" /> },
   { id: 'orgchart', label: 'Org Chart', icon: <GitBranch className="h-4 w-4" /> },

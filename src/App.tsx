@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@/store';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Header } from '@/components/layout/Header';
 import { ViewTabs } from '@/components/layout/ViewTabs';
+import { NotificationBanner } from '@/components/layout/NotificationBanner';
 import { StakeholderPanel } from '@/components/stakeholders/StakeholderPanel';
 import { ChatPanel } from '@/components/chat/ChatPanel';
+import { Dashboard } from '@/views/Dashboard';
 import { NetworkGraph } from '@/views/NetworkGraph';
 import { InfluenceMatrix } from '@/views/InfluenceMatrix';
 import { OrgChart } from '@/views/OrgChart';
@@ -17,6 +20,9 @@ function App() {
   const { initialized, initialize, currentView, chatOpen, projects, loadProjects, setCurrentProject, loadWorkstreams, loadProjectStakeholders, loadRACIAssignments, loadCommPlans, currentProjectId } = useStore();
   const [error, setError] = useState<string | null>(null);
   const [seeding, setSeeding] = useState(false);
+
+  // Enable keyboard shortcuts
+  useKeyboardShortcuts();
 
   useEffect(() => {
     initialize().catch((err) => {
@@ -68,6 +74,8 @@ function App() {
 
   const renderView = () => {
     switch (currentView) {
+      case 'dashboard':
+        return <Dashboard />;
       case 'network':
         return <NetworkGraph />;
       case 'influence':
@@ -77,7 +85,7 @@ function App() {
       case 'raci':
         return <RACIMatrix />;
       default:
-        return <NetworkGraph />;
+        return <Dashboard />;
     }
   };
 
@@ -86,6 +94,7 @@ function App() {
       <div className="flex h-screen flex-col bg-background">
         <Header />
         <ViewTabs />
+        <NotificationBanner />
         <div className="flex flex-1 overflow-hidden">
           <main className="flex-1 overflow-hidden relative">
             {renderView()}

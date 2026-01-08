@@ -52,10 +52,61 @@ export interface CommunicationPlan {
   channel: CommunicationChannel;
   frequency: CommunicationFrequency;
   notes: string;
+  lastContactDate?: string;
+}
+
+// Engagement Log types
+export type EngagementType = 'meeting' | 'email' | 'call' | 'decision' | 'note';
+export type Sentiment = 'positive' | 'neutral' | 'negative';
+
+export interface EngagementLog {
+  id: string;
+  projectStakeholderId: string;
+  date: string;
+  type: EngagementType;
+  summary: string;
+  sentiment: Sentiment;
+  createdAt: string;
+}
+
+// Stakeholder History types
+export interface StakeholderHistory {
+  id: string;
+  stakeholderId: string;
+  field: 'influenceLevel' | 'supportLevel';
+  oldValue: string;
+  newValue: string;
+  changedAt: string;
+  notes?: string;
+}
+
+// Tag types
+export interface Tag {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface StakeholderTag {
+  stakeholderId: string;
+  tagId: string;
+}
+
+// Relationship types
+export type RelationshipType = 'reports_to' | 'influences' | 'allied_with' | 'conflicts_with';
+export type RelationshipStrength = 'strong' | 'moderate' | 'weak';
+
+export interface Relationship {
+  id: string;
+  fromStakeholderId: string;
+  toStakeholderId: string;
+  type: RelationshipType;
+  strength: RelationshipStrength;
+  notes?: string;
 }
 
 // View types
-export type ViewType = 'network' | 'influence' | 'orgchart' | 'raci';
+export type ViewType = 'dashboard' | 'network' | 'influence' | 'orgchart' | 'raci';
 
 // Extended types for UI
 export interface StakeholderWithAssignments extends Stakeholder {
@@ -91,3 +142,14 @@ export interface QueryIntent {
   sqlQuery?: string;
 }
 
+// Saved filter view
+export interface SavedFilter {
+  id: string;
+  name: string;
+  filters: {
+    influenceLevel?: string;
+    supportLevel?: string;
+    department?: string;
+    tagId?: string;
+  };
+}

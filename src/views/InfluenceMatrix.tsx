@@ -104,10 +104,12 @@ export function InfluenceMatrix() {
   );
 }
 
+type ProjectStakeholder = ReturnType<typeof useStore.getState>['projectStakeholders'][number];
+
 interface QuadrantProps {
   title: string;
   subtitle: string;
-  stakeholders: (typeof useStore.getState)['projectStakeholders'];
+  stakeholders: ProjectStakeholder[];
   className: string;
   dotColor: string;
 }

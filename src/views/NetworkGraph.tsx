@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { RACIRole } from '@/types';
 
-interface StakeholderNodeData {
+interface StakeholderNodeData extends Record<string, unknown> {
   name: string;
   jobTitle: string;
   department: string;
