@@ -84,5 +84,5 @@ Data is stored in your browser's localStorage (for web mode) or in the app's dat
 
 ## License
 
-MIT
+Apache License 2.0 - see [LICENSE](LICENSE) for details.
 
