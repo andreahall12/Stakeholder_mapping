@@ -512,7 +512,66 @@ Test in:
 
 ---
 
-## 9. Troubleshooting
+
+---
+
+## 9. Security
+
+### 9.1 Data Security
+
+**Storage:**
+- Data is stored in browser localStorage as base64-encoded SQLite
+- Not encrypted at rest - consider this for sensitive data
+- Data persists until browser data is cleared
+
+**Recommendations:**
+- Use on private/work devices only for sensitive data
+- Export regular backups to secure location
+- Consider Tauri desktop build for isolation
+
+### 9.2 Input Validation
+
+The application implements several security measures:
+
+**SQL Injection Prevention:**
+- All database queries use parameterized statements
+- User input is never directly interpolated into SQL strings
+- See `src/db/database.ts` for query patterns
+
+**XSS Prevention:**
+- HTML output is escaped using `escapeHTML()` function
+- PDF reports sanitize all stakeholder data before rendering
+- See `src/lib/export.ts` for implementation
+
+**CSV Formula Injection Prevention:**
+- Imported CSV values are sanitized
+- Leading characters that could trigger Excel formulas (=, +, -, @) are neutralized
+- String length limits prevent DoS attacks
+- See `src/components/stakeholders/ImportDialog.tsx`
+
+### 9.3 AI Security
+
+**Local Processing:**
+- AI features use Ollama running on localhost:11434
+- No data is sent to external servers
+- No API keys stored
+
+**Prompt Injection:**
+- AI responses are treated as untrusted
+- Parsed JSON is validated before use
+- See `src/ai/chatService.ts`
+
+### 9.4 External Dependencies
+
+**sql.js CDN:**
+- Currently loaded from sql.js.org CDN
+- For production, consider bundling locally
+- See `src/db/database.ts` for loading mechanism
+
+**Subresource Integrity:**
+- Consider adding SRI hashes for CDN resources
+- Protects against CDN compromise
+## 10. Troubleshooting
 
 ### Common Issues
 
@@ -532,7 +591,7 @@ Open browser DevTools and check:
 
 ---
 
-## 10. Contributing
+## 11. Contributing
 
 ### Code Style
 
@@ -551,6 +610,6 @@ Open browser DevTools and check:
 
 ---
 
-## 11. License
+## 12. License
 
 Apache License 2.0 - see LICENSE file for full text.

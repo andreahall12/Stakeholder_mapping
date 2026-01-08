@@ -586,6 +586,6 @@ export const relationshipsRepo = {
   },
 };
 
-export function executeRawQuery(sql: string): unknown[] {
-  try { return query(sql); } catch (error) { console.error('SQL Error:', error); return []; }
+export function executeRawQuery(sql: string, params: unknown[] = []): unknown[] {
+  try { return query(sql, params); } catch (error) { console.error('SQL Error:', error); return []; }
 }

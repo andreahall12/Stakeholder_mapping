@@ -452,7 +452,7 @@ export async function processQuery(
   
   if (intent.sqlQuery) {
     try {
-      sqlResults = executeRawQuery(intent.sqlQuery);
+      sqlResults = executeRawQuery(intent.sqlQuery, intent.sqlParams);
       contextData = `\nQuery results from database:\n${JSON.stringify(sqlResults, null, 2)}`;
     } catch (error) {
       console.error('SQL execution error:', error);
@@ -519,15 +519,15 @@ async function generateMeetingBrief(
   projectContext: { projectName: string; projectId?: string },
   model: string
 ): Promise<ChatResponse> {
-  // Find the stakeholder
+  // Find the stakeholder using parameterized query
   const stakeholderQuery = `
     SELECT s.*, ps.id as project_stakeholder_id
     FROM stakeholders s
     JOIN project_stakeholders ps ON s.id = ps.stakeholder_id
-    WHERE LOWER(s.name) LIKE '%${targetName.toLowerCase()}%'
+    WHERE LOWER(s.name) LIKE ?
     LIMIT 1
   `;
-  const stakeholders = executeRawQuery(stakeholderQuery) as any[];
+  const stakeholders = executeRawQuery(stakeholderQuery, [`%${targetName.toLowerCase()}%`]) as any[];
   
   if (stakeholders.length === 0) {
     return { content: `Could not find a stakeholder matching "${targetName}". Please check the name and try again.` };
@@ -535,14 +535,14 @@ async function generateMeetingBrief(
   
   const stakeholder = stakeholders[0];
   
-  // Get their RACI roles
+  // Get their RACI roles using parameterized query
   const raciQuery = `
     SELECT w.name as workstream, r.role
     FROM raci_assignments r
     JOIN workstreams w ON r.workstream_id = w.id
-    WHERE r.project_stakeholder_id = '${stakeholder.project_stakeholder_id}'
+    WHERE r.project_stakeholder_id = ?
   `;
-  const raciRoles = executeRawQuery(raciQuery);
+  const raciRoles = executeRawQuery(raciQuery, [stakeholder.project_stakeholder_id]);
   
   // Get recent engagement logs
   const recentLogs = engagementLogsRepo.getByProjectStakeholder(stakeholder.project_stakeholder_id).slice(0, 5);
@@ -611,17 +611,18 @@ async function generateDraftEmail(
   projectContext: { projectName: string },
   model: string
 ): Promise<ChatResponse> {
-  // Try to find stakeholders matching the target
+  // Try to find stakeholders matching the target using parameterized query
+  const searchPattern = `%${target.toLowerCase()}%`;
   const stakeholderQuery = `
     SELECT s.name, s.job_title, s.email, s.influence_level, s.support_level
     FROM stakeholders s
     JOIN project_stakeholders ps ON s.id = ps.stakeholder_id
-    WHERE LOWER(s.name) LIKE '%${target.toLowerCase()}%'
-       OR LOWER(s.department) LIKE '%${target.toLowerCase()}%'
-       OR LOWER(s.support_level) LIKE '%${target.toLowerCase()}%'
+    WHERE LOWER(s.name) LIKE ?
+       OR LOWER(s.department) LIKE ?
+       OR LOWER(s.support_level) LIKE ?
     LIMIT 10
   `;
-  const recipients = executeRawQuery(stakeholderQuery) as any[];
+  const recipients = executeRawQuery(stakeholderQuery, [searchPattern, searchPattern, searchPattern]) as any[];
   
   if (recipients.length === 0) {
     return { content: `Could not find stakeholders matching "${target}". Try a name, department, or support level like "champions".` };
@@ -659,13 +660,14 @@ async function analyzeBlockers(
   projectContext: { projectName: string },
   model: string
 ): Promise<ChatResponse> {
+  // Use parameterized query for consistency and security
   const blockerQuery = `
     SELECT s.name, s.job_title, s.department, s.influence_level, s.support_level, s.notes
     FROM stakeholders s
     JOIN project_stakeholders ps ON s.id = ps.stakeholder_id
-    WHERE s.influence_level = 'high' AND s.support_level IN ('resistant', 'neutral')
+    WHERE s.influence_level = ? AND s.support_level IN (?, ?)
   `;
-  const blockers = executeRawQuery(blockerQuery) as any[];
+  const blockers = executeRawQuery(blockerQuery, ['high', 'resistant', 'neutral']) as any[];
   
   if (blockers.length === 0) {
     return { content: '✅ **Good news!** No high-influence blockers found. All key stakeholders are either supportive or champions.' };
@@ -708,6 +710,7 @@ async function findNeglectedStakeholders(
   projectContext: { projectName: string },
   model: string
 ): Promise<ChatResponse> {
+  // Query uses no user input but uses parameterized style for consistency
   const overdueQuery = `
     SELECT s.name, s.job_title, s.influence_level, c.frequency, c.last_contact_date
     FROM stakeholders s
@@ -715,7 +718,7 @@ async function findNeglectedStakeholders(
     LEFT JOIN comm_plans c ON ps.id = c.project_stakeholder_id
     WHERE c.last_contact_date IS NOT NULL OR c.id IS NOT NULL
   `;
-  const stakeholdersWithPlans = executeRawQuery(overdueQuery) as any[];
+  const stakeholdersWithPlans = executeRawQuery(overdueQuery, []) as any[];
   
   const today = new Date();
   const neglected = stakeholdersWithPlans.filter(s => {

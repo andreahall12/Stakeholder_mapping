@@ -17,6 +17,7 @@ A powerful desktop application designed for **program managers** to identify, tr
 - [AI Chat Assistant](#ai-chat-assistant)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Troubleshooting](#troubleshooting)
+- [Security Considerations](#security-considerations)
 - [For Developers](#for-developers)
 
 ---
@@ -452,6 +453,45 @@ Data is stored in your browser. It persists unless you:
 
 ---
 
+
+---
+
+## Security Considerations
+
+### Data Storage
+
+This application stores all data locally in your browser's **localStorage**. This means:
+
+- **No cloud sync** - Your data never leaves your device
+- **Browser-specific** - Data is tied to the browser you use
+- **Not encrypted** - Data is stored in base64 encoding, not encrypted
+
+**Recommendations for sensitive stakeholder data:**
+1. Use the application on a private/work computer only
+2. Export and backup data regularly to a secure location
+3. Clear browser data when using shared computers
+4. Consider the desktop (Tauri) build for added isolation
+
+### AI Integration
+
+The AI chat feature connects to a **local Ollama instance** running on your machine:
+- All AI processing happens locally - no data is sent to external servers
+- Ollama must be running on `localhost:11434`
+- No API keys or external authentication required
+
+### Input Validation
+
+The application includes protections against:
+- **SQL Injection** - All database queries use parameterized statements
+- **XSS (Cross-Site Scripting)** - HTML content is escaped in reports
+- **CSV Formula Injection** - Imported CSV values are sanitized
+
+### Best Practices
+
+1. **Regular Backups** - Use Export → Full Backup before major changes
+2. **Anonymous Mode** - Enable for presentations to hide real names
+3. **Review Imports** - Check CSV preview before importing stakeholder data
+4. **Keep Ollama Updated** - Update your local Ollama installation regularly
 ## For Developers
 
 - [REQUIREMENTS.md](REQUIREMENTS.md) - Functional and non-functional requirements

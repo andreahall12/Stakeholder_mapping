@@ -53,6 +53,37 @@ const STAKEHOLDER_FIELDS = [
   { key: 'notes', label: 'Notes', required: false },
 ];
 
+// Maximum allowed string length for imported fields
+const MAX_FIELD_LENGTH = 500;
+
+/**
+ * Sanitize imported CSV values to prevent:
+ * 1. CSV formula injection (=, +, -, @, tab, carriage return at start)
+ * 2. Excessively long strings
+ * 3. Control characters
+ */
+function sanitizeCSVValue(value: string | undefined | null): string {
+  if (!value) return '';
+  
+  let sanitized = value.trim();
+  
+  // Remove control characters except newlines (which are handled by notes field)
+  sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  
+  // Prevent CSV formula injection - remove leading characters that could trigger formulas
+  // when data is later exported to CSV/Excel
+  if (/^[=+\-@\t\r]/.test(sanitized)) {
+    sanitized = "'" + sanitized; // Prefix with single quote to neutralize formula
+  }
+  
+  // Limit string length
+  if (sanitized.length > MAX_FIELD_LENGTH) {
+    sanitized = sanitized.substring(0, MAX_FIELD_LENGTH);
+  }
+  
+  return sanitized;
+}
+
 export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
   const { createStakeholder, assignStakeholder, currentProjectId } = useStore();
   const [step, setStep] = useState<Step>('upload');
@@ -179,7 +210,8 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
     for (let i = 0; i < csvData.length; i++) {
       const row = csvData[i];
       try {
-        const name = row[fieldMapping.name]?.trim();
+        // Sanitize the name field
+        const name = sanitizeCSVValue(row[fieldMapping.name]);
         if (!name) {
           newErrors.push(`Row ${i + 2}: Missing name`);
           continue;
@@ -188,7 +220,7 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
         // Parse influence and support levels with validation
         let influenceLevel: 'high' | 'medium' | 'low' = 'medium';
         if (fieldMapping.influenceLevel) {
-          const val = row[fieldMapping.influenceLevel]?.toLowerCase().trim();
+          const val = sanitizeCSVValue(row[fieldMapping.influenceLevel]).toLowerCase();
           if (val === 'high' || val === 'medium' || val === 'low') {
             influenceLevel = val;
           }
@@ -196,21 +228,22 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
 
         let supportLevel: 'champion' | 'supporter' | 'neutral' | 'resistant' = 'neutral';
         if (fieldMapping.supportLevel) {
-          const val = row[fieldMapping.supportLevel]?.toLowerCase().trim();
+          const val = sanitizeCSVValue(row[fieldMapping.supportLevel]).toLowerCase();
           if (val === 'champion' || val === 'supporter' || val === 'neutral' || val === 'resistant') {
             supportLevel = val;
           }
         }
 
+        // Sanitize all imported values to prevent injection attacks
         const stakeholder = createStakeholder({
           name,
-          jobTitle: fieldMapping.jobTitle ? row[fieldMapping.jobTitle]?.trim() || '' : '',
-          department: fieldMapping.department ? row[fieldMapping.department]?.trim() || '' : '',
-          email: fieldMapping.email ? row[fieldMapping.email]?.trim() || '' : '',
-          slack: fieldMapping.slack ? row[fieldMapping.slack]?.trim() || '' : '',
+          jobTitle: sanitizeCSVValue(fieldMapping.jobTitle ? row[fieldMapping.jobTitle] : ''),
+          department: sanitizeCSVValue(fieldMapping.department ? row[fieldMapping.department] : ''),
+          email: sanitizeCSVValue(fieldMapping.email ? row[fieldMapping.email] : ''),
+          slack: sanitizeCSVValue(fieldMapping.slack ? row[fieldMapping.slack] : ''),
           influenceLevel,
           supportLevel,
-          notes: fieldMapping.notes ? row[fieldMapping.notes]?.trim() || '' : '',
+          notes: sanitizeCSVValue(fieldMapping.notes ? row[fieldMapping.notes] : ''),
         });
 
         if (assignToProject && currentProjectId) {

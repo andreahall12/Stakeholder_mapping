@@ -33,6 +33,28 @@ interface ParsedStakeholder {
 
 const OLLAMA_BASE_URL = 'http://localhost:11434';
 
+// Maximum allowed string length for imported fields
+const MAX_FIELD_LENGTH = 500;
+
+/**
+ * Sanitize AI-parsed values to prevent injection attacks
+ */
+function sanitizeValue(value: string | undefined | null): string {
+  if (!value) return '';
+  
+  let sanitized = String(value).trim();
+  
+  // Remove control characters
+  sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  
+  // Limit string length
+  if (sanitized.length > MAX_FIELD_LENGTH) {
+    sanitized = sanitized.substring(0, MAX_FIELD_LENGTH);
+  }
+  
+  return sanitized;
+}
+
 export function AIQuickAddDialog({ open, onOpenChange }: AIQuickAddDialogProps) {
   const { createStakeholder, assignStakeholder, currentProjectId } = useStore();
   const [inputText, setInputText] = useState('');
@@ -83,14 +105,15 @@ Return ONLY valid JSON array, no other text. Example format:
       }
 
       const parsed = JSON.parse(jsonMatch[0]) as Partial<ParsedStakeholder>[];
+      // Sanitize all values from AI to prevent injection attacks
       const results: ParsedStakeholder[] = parsed.map((p) => ({
-        name: p.name || '',
-        jobTitle: p.jobTitle || '',
-        department: p.department || '',
-        email: p.email || '',
-        slack: p.slack || '',
+        name: sanitizeValue(p.name),
+        jobTitle: sanitizeValue(p.jobTitle),
+        department: sanitizeValue(p.department),
+        email: sanitizeValue(p.email),
+        slack: sanitizeValue(p.slack),
         selected: true,
-      })).filter((p) => p.name.trim() !== '');
+      })).filter((p) => p.name !== '');
 
       if (results.length === 0) {
         setError('No stakeholders found in the text');
@@ -124,12 +147,14 @@ Return ONLY valid JSON array, no other text. Example format:
   const handleImport = () => {
     const selected = parsedResults.filter((p) => p.selected);
     for (const p of selected) {
+      // Values are already sanitized during parsing, but sanitize again for safety
+      // in case values were edited in the UI
       const stakeholder = createStakeholder({
-        name: p.name,
-        jobTitle: p.jobTitle,
-        department: p.department,
-        email: p.email,
-        slack: p.slack,
+        name: sanitizeValue(p.name),
+        jobTitle: sanitizeValue(p.jobTitle),
+        department: sanitizeValue(p.department),
+        email: sanitizeValue(p.email),
+        slack: sanitizeValue(p.slack),
         influenceLevel: 'medium',
         supportLevel: 'neutral',
         notes: '',

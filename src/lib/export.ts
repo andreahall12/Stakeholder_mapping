@@ -99,6 +99,17 @@ function escapeCSV(value: string): string {
   return value;
 }
 
+// Escape HTML special characters to prevent XSS attacks
+function escapeHTML(value: string | undefined | null): string {
+  if (!value) return '';
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Generate a printable HTML report for PDF export
 export function generatePDFReport(projectId: string): string {
   const project = projectsRepo.getById(projectId);
@@ -140,12 +151,13 @@ export function generatePDFReport(projectId: string): string {
 
   const today = new Date().toLocaleDateString();
 
+  // Escape all user-provided content to prevent XSS
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>${project.name} - Stakeholder Landscape</title>
+  <title>${escapeHTML(project.name)} - Stakeholder Landscape</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
@@ -206,8 +218,8 @@ export function generatePDFReport(projectId: string): string {
 </head>
 <body>
   <div class="header">
-    <h1>${project.name}</h1>
-    <p>${project.description || 'Stakeholder Landscape Report'}</p>
+    <h1>${escapeHTML(project.name)}</h1>
+    <p>${escapeHTML(project.description) || 'Stakeholder Landscape Report'}</p>
     <p>Generated: ${today}</p>
   </div>
 
@@ -239,7 +251,7 @@ export function generatePDFReport(projectId: string): string {
     <h2>⚠️ Key Risks</h2>
     ${blockers.map(b => `
       <div class="alert warning">
-        <strong>${b.name}</strong> (${b.jobTitle || 'Unknown role'}) - High influence, ${b.supportLevel}
+        <strong>${escapeHTML(b.name)}</strong> (${escapeHTML(b.jobTitle) || 'Unknown role'}) - High influence, ${escapeHTML(b.supportLevel)}
       </div>
     `).join('')}
   ` : ''}
@@ -258,11 +270,11 @@ export function generatePDFReport(projectId: string): string {
     <tbody>
       ${stakeholders.map(s => `
         <tr>
-          <td><strong>${s.name}</strong></td>
-          <td>${s.jobTitle || '-'}</td>
-          <td>${s.department || '-'}</td>
-          <td><span class="badge ${s.influenceLevel}">${s.influenceLevel}</span></td>
-          <td><span class="badge ${s.supportLevel}">${s.supportLevel}</span></td>
+          <td><strong>${escapeHTML(s.name)}</strong></td>
+          <td>${escapeHTML(s.jobTitle) || '-'}</td>
+          <td>${escapeHTML(s.department) || '-'}</td>
+          <td><span class="badge ${escapeHTML(s.influenceLevel)}">${escapeHTML(s.influenceLevel)}</span></td>
+          <td><span class="badge ${escapeHTML(s.supportLevel)}">${escapeHTML(s.supportLevel)}</span></td>
         </tr>
       `).join('')}
     </tbody>
@@ -283,13 +295,13 @@ export function generatePDFReport(projectId: string): string {
       <tbody>
         ${workstreams.map(ws => {
           const wsRaci = raciAssignments.filter(r => r.workstreamName === ws.name);
-          const responsible = wsRaci.filter(r => r.role === 'R').map(r => r.stakeholderName).join(', ') || '-';
-          const accountable = wsRaci.filter(r => r.role === 'A').map(r => r.stakeholderName).join(', ') || '-';
-          const consulted = wsRaci.filter(r => r.role === 'C').map(r => r.stakeholderName).join(', ') || '-';
-          const informed = wsRaci.filter(r => r.role === 'I').map(r => r.stakeholderName).join(', ') || '-';
+          const responsible = wsRaci.filter(r => r.role === 'R').map(r => escapeHTML(r.stakeholderName)).join(', ') || '-';
+          const accountable = wsRaci.filter(r => r.role === 'A').map(r => escapeHTML(r.stakeholderName)).join(', ') || '-';
+          const consulted = wsRaci.filter(r => r.role === 'C').map(r => escapeHTML(r.stakeholderName)).join(', ') || '-';
+          const informed = wsRaci.filter(r => r.role === 'I').map(r => escapeHTML(r.stakeholderName)).join(', ') || '-';
           return `
             <tr>
-              <td><strong>${ws.name}</strong></td>
+              <td><strong>${escapeHTML(ws.name)}</strong></td>
               <td>${responsible}</td>
               <td>${accountable}</td>
               <td>${consulted}</td>
