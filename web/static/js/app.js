@@ -146,6 +146,84 @@ document.addEventListener("keydown", function (e) {
     }
 })();
 
+// --- Import Data ---
+(function () {
+    var importBtn = document.getElementById("import-btn");
+    var fileInput = document.getElementById("import-file-input");
+    var cancelBtn = document.getElementById("import-cancel-btn");
+    var confirmBtn = document.getElementById("import-confirm-btn");
+    var backdrop = document.getElementById("import-modal-backdrop");
+    var fileNameEl = document.getElementById("import-file-name");
+    var selectedFile = null;
+
+    if (!importBtn || !fileInput) return;
+
+    importBtn.addEventListener("click", function () {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener("change", function () {
+        if (fileInput.files.length === 0) return;
+        selectedFile = fileInput.files[0];
+        if (fileNameEl) fileNameEl.textContent = "File: " + selectedFile.name;
+        showModal("import-confirm-modal");
+    });
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener("click", function () {
+            if (!selectedFile) return;
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Importing...";
+
+            var formData = new FormData();
+            formData.append("file", selectedFile);
+
+            fetch("/api/v1/import/full.json", {
+                method: "POST",
+                body: formData
+            })
+            .then(function (resp) { return resp.json(); })
+            .then(function (data) {
+                hideModal("import-confirm-modal");
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "Yes, import data";
+                fileInput.value = "";
+                selectedFile = null;
+
+                if (data.error) {
+                    showToast("Import failed: " + data.error, "error");
+                } else {
+                    showToast("Data imported successfully", "success");
+                    setTimeout(function () { window.location.href = "/"; }, 800);
+                }
+            })
+            .catch(function () {
+                hideModal("import-confirm-modal");
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "Yes, import data";
+                fileInput.value = "";
+                selectedFile = null;
+                showToast("Import failed — check that the file is valid JSON", "error");
+            });
+        });
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener("click", function () {
+            hideModal("import-confirm-modal");
+            fileInput.value = "";
+            selectedFile = null;
+        });
+    }
+    if (backdrop) {
+        backdrop.addEventListener("click", function () {
+            hideModal("import-confirm-modal");
+            fileInput.value = "";
+            selectedFile = null;
+        });
+    }
+})();
+
 // --- AI Chat Panel ---
 (function() {
     var fab = document.getElementById("chat-fab");

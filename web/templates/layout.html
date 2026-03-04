@@ -20,6 +20,14 @@
             <h1>Stakeholder Mapping</h1>
         </div>
         <div class="header-right">
+            <button class="btn btn-ghost" id="import-btn" title="Import Data">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Import
+            </button>
             <a href="/api/v1/export/full.json" class="btn btn-ghost" title="Export Data">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -28,6 +36,7 @@
                 </svg>
                 Export
             </a>
+            <input type="file" id="import-file-input" accept=".json" style="display:none">
         </div>
     </header>
     <nav class="nav">
@@ -103,6 +112,23 @@
         </div>
     </div>
     {{end}}
+    <div class="modal" id="import-confirm-modal" style="display:none">
+        <div class="modal-backdrop" id="import-modal-backdrop"></div>
+        <div class="modal-content">
+            <h3>Import data?</h3>
+            <p style="color:var(--text-secondary);font-size:14px;margin-bottom:8px;">
+                This will <strong>replace all existing data</strong> with the contents of the imported file.
+            </p>
+            <p style="color:var(--text-secondary);font-size:14px;">
+                If you want to keep your current data, click Cancel and use the Export button first to save a backup.
+            </p>
+            <p id="import-file-name" style="color:var(--text-muted);font-size:12px;margin-top:8px;"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="import-cancel-btn">Cancel</button>
+                <button class="btn btn-primary" id="import-confirm-btn">Yes, import data</button>
+            </div>
+        </div>
+    </div>
     <main class="main">
         {{template "content" .}}
     </main>

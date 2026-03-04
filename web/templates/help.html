@@ -71,18 +71,18 @@
 
         <div class="help-section">
             <h3>Exporting &amp; Sharing Data</h3>
-            <p>Click the <strong>Export</strong> button in the top-right corner to download a full JSON backup of your data.</p>
-            <p>To share with a teammate, use the terminal:</p>
+            <p>Use the buttons in the top-right corner of every page:</p>
             <ul>
-                <li><code>make export</code> — saves everything to <code>stakeholder-export.json</code></li>
+                <li><strong>Export</strong> — downloads a full JSON backup of all your data (projects, stakeholders, relationships, etc.)</li>
+                <li><strong>Import</strong> — uploads a previously exported JSON file, replacing your current data</li>
+            </ul>
+            <p><strong>To share with a teammate:</strong></p>
+            <ol>
+                <li>Click <strong>Export</strong> to download your data file</li>
                 <li>Send that file to your teammate</li>
-                <li>They run <code>make import FILE=stakeholder-export.json</code> to load it</li>
-            </ul>
-            <p>Other export formats available while the tool is running:</p>
-            <ul>
-                <li><strong>CSV</strong> (for Excel): <code>/api/v1/export/stakeholders.csv</code></li>
-                <li><strong>JSON</strong> (stakeholders only): <code>/api/v1/export/stakeholders.json</code></li>
-            </ul>
+                <li>They click <strong>Import</strong> and select the file to load it</li>
+            </ol>
+            <p>You can also use the terminal: <code>make export</code> and <code>make import FILE=stakeholder-export.json</code></p>
         </div>
 
         <div class="help-section">
