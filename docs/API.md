@@ -120,7 +120,6 @@ POST /api/v1/ai/chat
 | GET | `/api/v1/export/stakeholders.csv` | Export stakeholders as CSV |
 | GET | `/api/v1/export/stakeholders.json` | Export stakeholders as JSON |
 | GET | `/api/v1/export/full.json` | Export full database as JSON |
-| GET | `/api/v1/export/ontology.ttl` | Export as RDF/Turtle |
 | POST | `/api/v1/import/stakeholders.csv` | Import stakeholders from CSV |
 
 Query: `?project_id=<uuid>` to scope exports.

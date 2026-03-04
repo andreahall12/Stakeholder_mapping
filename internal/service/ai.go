@@ -145,7 +145,7 @@ func (s *AIService) getProjectContext(projectID string) string {
 	var name, status string
 	row := s.db.Conn().QueryRow("SELECT name, status FROM projects WHERE id = ?", projectID)
 	if row.Scan(&name, &status) == nil {
-		sb.WriteString(fmt.Sprintf("Project: %s (Status: %s)\n", name, status))
+		fmt.Fprintf(&sb, "Project: %s (Status: %s)\n", name, status)
 	}
 
 	// Stakeholder summary
@@ -160,7 +160,7 @@ func (s *AIService) getProjectContext(projectID string) string {
 		for rows.Next() {
 			var sName, title, dept, influence, support string
 			if rows.Scan(&sName, &title, &dept, &influence, &support) == nil {
-				sb.WriteString(fmt.Sprintf("- %s (%s, %s): Influence=%s, Support=%s\n", sName, title, dept, influence, support))
+				fmt.Fprintf(&sb, "- %s (%s, %s): Influence=%s, Support=%s\n", sName, title, dept, influence, support)
 			}
 		}
 	}
@@ -176,10 +176,10 @@ func (s *AIService) getStakeholderContext(stakeholderID, projectID string) strin
 		"SELECT name, job_title, department, influence_level, support_level, notes FROM stakeholders WHERE id = ?",
 		stakeholderID)
 	if row.Scan(&name, &title, &dept, &influence, &support, &notes) == nil {
-		sb.WriteString(fmt.Sprintf("Name: %s\nTitle: %s\nDepartment: %s\n", name, title, dept))
-		sb.WriteString(fmt.Sprintf("Influence: %s\nSupport: %s\n", influence, support))
+		fmt.Fprintf(&sb, "Name: %s\nTitle: %s\nDepartment: %s\n", name, title, dept)
+		fmt.Fprintf(&sb, "Influence: %s\nSupport: %s\n", influence, support)
 		if notes != "" {
-			sb.WriteString(fmt.Sprintf("Notes: %s\n", notes))
+			fmt.Fprintf(&sb, "Notes: %s\n", notes)
 		}
 	}
 
@@ -196,7 +196,7 @@ func (s *AIService) getStakeholderContext(stakeholderID, projectID string) strin
 		for rows.Next() {
 			var date, typ, summary, sentiment string
 			if rows.Scan(&date, &typ, &summary, &sentiment) == nil {
-				sb.WriteString(fmt.Sprintf("- [%s] %s: %s (sentiment: %s)\n", date, typ, summary, sentiment))
+				fmt.Fprintf(&sb, "- [%s] %s: %s (sentiment: %s)\n", date, typ, summary, sentiment)
 			}
 		}
 	}

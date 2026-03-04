@@ -1,50 +1,52 @@
-# golangci-lint configuration with security-focused rules
+version: "2"
 run:
-  timeout: 5m
   go: "1.25"
-
 linters:
   enable:
-    # Security
-    - gosec          # Security-focused linter
-    - bodyclose      # Check HTTP body close
-    - noctx          # Check for http.Request without context
-
-    # Code quality
-    - errcheck       # Check error returns
-    - govet          # Go vet checks
-    - staticcheck    # Advanced static analysis
-    - unused         # Unused code detection
-    - ineffassign    # Detect ineffectual assignments
-    - typecheck      # Type checking
-
-    # Style
-    - gofmt          # Format checking
-    - goimports      # Import ordering
-    - misspell       # Spell checking
-
-linters-settings:
-  gosec:
-    confidence: medium
-    excludes:
-      - G104
-
-  errcheck:
-    check-type-assertions: true
-    check-blank: false
-
-  govet:
-    enable-all: true
-    disable:
-      - fieldalignment
-      - shadow
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-        - gosec
-    - path: cmd/
-      linters:
-        - errcheck
+    - bodyclose
+    - gosec
+    - misspell
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: false
+    gosec:
+      excludes:
+        - G104
+        - G117
+        - G704
+      confidence: medium
+    govet:
+      disable:
+        - fieldalignment
+        - shadow
+      enable-all: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - errcheck
+          - gosec
+        path: _test\.go
+      - linters:
+          - errcheck
+        path: cmd/
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

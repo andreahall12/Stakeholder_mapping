@@ -33,7 +33,6 @@ type Handler struct {
 	dashboard     *service.DashboardService
 	ai            *service.AIService
 	export        *service.ExportService
-	ontology      *service.OntologyService
 	tags          *sqlite.TagRepo
 	relationships *sqlite.RelationshipRepo
 	engagements   *sqlite.EngagementRepo
@@ -52,7 +51,6 @@ func NewHandler(db *sqlite.DB, cfg *config.Config, logger *slog.Logger) *Handler
 		dashboard:     service.NewDashboardService(db, logger),
 		ai:            service.NewAIService(db, cfg, logger),
 		export:        service.NewExportService(db, logger),
-		ontology:      service.NewOntologyService(db, logger),
 		tags:          sqlite.NewTagRepo(db, logger),
 		relationships: sqlite.NewRelationshipRepo(db, logger),
 		engagements:   sqlite.NewEngagementRepo(db, logger),
@@ -118,7 +116,6 @@ func (h *Handler) Register(r chi.Router) {
 	r.Get("/export/stakeholders.csv", h.exportStakeholdersCSV)
 	r.Get("/export/stakeholders.json", h.exportStakeholdersJSON)
 	r.Get("/export/full.json", h.exportFullJSON)
-	r.Get("/export/ontology.ttl", h.exportOntologyTurtle)
 	r.Post("/import/stakeholders.csv", h.importStakeholdersCSV)
 	r.Post("/import/full.json", h.importFullJSON)
 
@@ -644,15 +641,6 @@ func (h *Handler) exportFullJSON(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=stakeholder-tool-export.json")
 	if err := h.export.ExportFullJSON(w); err != nil {
 		h.logger.Error("full export error", "error", err)
-	}
-}
-
-func (h *Handler) exportOntologyTurtle(w http.ResponseWriter, r *http.Request) {
-	projectID := r.URL.Query().Get("project_id")
-	w.Header().Set("Content-Type", "text/turtle")
-	w.Header().Set("Content-Disposition", "attachment; filename=stakeholders.ttl")
-	if err := h.ontology.ExportTurtle(w, projectID); err != nil {
-		h.logger.Error("Turtle export error", "error", err)
 	}
 }
 

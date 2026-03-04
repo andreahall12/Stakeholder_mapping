@@ -309,7 +309,7 @@ cmd/seed/           — Demo data loader
 internal/domain/    — Business entities (10 models)
 internal/config/    — Environment-based configuration
 internal/repository/sqlite/ — Database access (CRUD, audit logging)
-internal/service/   — Business logic (KPIs, AI, export, ontology)
+internal/service/   — Business logic (KPIs, AI, export)
 internal/handler/   — HTTP handlers (web + REST API)
 internal/middleware/ — Security middleware (CSP, auth, logging)
 web/templates/      — HTML templates (HTMX partials)
@@ -345,14 +345,6 @@ curl http://localhost:1420/api/v1/stakeholders?search=alice
 ### MCP Server
 
 AI agent integration via Model Context Protocol — see [docs/MCP.md](docs/MCP.md).
-
-### Ontology Export
-
-RDF/Turtle export aligned with [compliance-ontology](https://github.com/andreahall12/compliance-ontology):
-
-```bash
-curl http://localhost:1420/api/v1/export/ontology.ttl
-```
 
 ### Security
 

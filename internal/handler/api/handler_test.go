@@ -208,20 +208,6 @@ func TestExportCSVEndpoint(t *testing.T) {
 	}
 }
 
-func TestExportOntologyEndpoint(t *testing.T) {
-	r := setupRouter(t)
-
-	req := httptest.NewRequest("GET", "/export/ontology.ttl", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d", w.Code)
-	}
-	if ct := w.Header().Get("Content-Type"); ct != "text/turtle" {
-		t.Fatalf("expected text/turtle content type, got '%s'", ct)
-	}
-}
-
 func TestWorkstreamCRUDAPI(t *testing.T) {
 	r := setupRouter(t)
 
