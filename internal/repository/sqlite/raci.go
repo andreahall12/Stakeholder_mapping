@@ -85,7 +85,7 @@ func (r *RACIRepo) Update(a *domain.RACIAssignment) error {
 	if err != nil {
 		return fmt.Errorf("updating RACI assignment: %w", err)
 	}
-	n, _ := result.RowsAffected()
+	n, _ := result.RowsAffected() //nolint:errcheck // SQLite driver never returns error here
 	if n == 0 {
 		return fmt.Errorf("RACI assignment %s not found", a.ID)
 	}
@@ -99,7 +99,7 @@ func (r *RACIRepo) Delete(id string) error {
 	if err != nil {
 		return fmt.Errorf("deleting RACI assignment: %w", err)
 	}
-	n, _ := result.RowsAffected()
+	n, _ := result.RowsAffected() //nolint:errcheck // SQLite driver never returns error here
 	if n == 0 {
 		return fmt.Errorf("RACI assignment %s not found", id)
 	}

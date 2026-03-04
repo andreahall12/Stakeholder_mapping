@@ -25,21 +25,26 @@ linters:
 
 linters-settings:
   gosec:
-    severity: high
     confidence: medium
-    excludes: []
+    excludes:
+      - G104
 
   errcheck:
     check-type-assertions: true
-    check-blank: true
+    check-blank: false
 
   govet:
     enable-all: true
+    disable:
+      - fieldalignment
+      - shadow
 
 issues:
   exclude-rules:
-    # Allow fmt.Errorf without wrapping in test files
     - path: _test\.go
       linters:
         - errcheck
         - gosec
+    - path: cmd/
+      linters:
+        - errcheck

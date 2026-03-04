@@ -110,8 +110,8 @@ func (r *CommPlanRepo) ListByProject(projectID string) ([]CommPlanWithName, erro
 			return nil, fmt.Errorf("scanning comm plan: %w", err)
 		}
 		if lastContact.Valid {
-			t, _ := time.Parse("2006-01-02", lastContact.String)
-			if !t.IsZero() {
+			t, err := time.Parse("2006-01-02", lastContact.String)
+			if err == nil && !t.IsZero() {
 				cp.LastContactDate = &t
 			}
 		}
@@ -150,7 +150,7 @@ func (r *CommPlanRepo) Delete(id string) error {
 	if err != nil {
 		return fmt.Errorf("deleting comm plan: %w", err)
 	}
-	n, _ := result.RowsAffected()
+	n, _ := result.RowsAffected() //nolint:errcheck // SQLite driver never returns error here
 	if n == 0 {
 		return fmt.Errorf("comm plan %s not found", id)
 	}

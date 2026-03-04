@@ -11,11 +11,11 @@ type SavedFilter struct {
 type ViewType string
 
 const (
-	ViewDashboard  ViewType = "dashboard"
-	ViewNetwork    ViewType = "network"
-	ViewInfluence  ViewType = "influence"
-	ViewOrgChart   ViewType = "orgchart"
-	ViewRACI       ViewType = "raci"
+	ViewDashboard ViewType = "dashboard"
+	ViewNetwork   ViewType = "network"
+	ViewInfluence ViewType = "influence"
+	ViewOrgChart  ViewType = "orgchart"
+	ViewRACI      ViewType = "raci"
 )
 
 // ChatMessage represents a message in the AI chat panel.

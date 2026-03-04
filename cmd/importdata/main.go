@@ -33,7 +33,7 @@ func main() {
 	inputFile := os.Args[1]
 
 	// Check the file exists before doing anything else
-	if _, err := os.Stat(inputFile); os.IsNotExist(err) {
+	if _, err := os.Stat(inputFile); os.IsNotExist(err) { // #nosec G703 -- CLI tool, path from user arg
 		fmt.Printf("File not found: %s\n", inputFile)
 		fmt.Println("Make sure the file path is correct and try again.")
 		os.Exit(1)
@@ -69,7 +69,7 @@ func main() {
 	}
 	defer db.Close()
 
-	f, err := os.Open(inputFile)
+	f, err := os.Open(inputFile) // #nosec G304 G703 -- CLI tool, path from user arg
 	if err != nil {
 		fmt.Printf("Could not open file: %s\n", err)
 		os.Exit(1)

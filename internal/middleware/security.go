@@ -2,9 +2,9 @@
 package middleware
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"context"
 	"log/slog"
 	"net/http"
 	"strings"

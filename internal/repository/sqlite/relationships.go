@@ -105,7 +105,7 @@ func (r *RelationshipRepo) Delete(id string) error {
 	if err != nil {
 		return fmt.Errorf("deleting relationship: %w", err)
 	}
-	n, _ := result.RowsAffected()
+	n, _ := result.RowsAffected() //nolint:errcheck // SQLite driver never returns error here
 	if n == 0 {
 		return fmt.Errorf("relationship %s not found", id)
 	}

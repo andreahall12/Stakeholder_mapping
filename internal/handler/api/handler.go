@@ -26,14 +26,14 @@ type Handler struct {
 	cfg    *config.Config
 	logger *slog.Logger
 
-	stakeholders *service.StakeholderService
-	projects     *service.ProjectService
-	workstreams  *service.WorkstreamService
-	raci         *service.RACIService
-	dashboard    *service.DashboardService
-	ai           *service.AIService
-	export       *service.ExportService
-	ontology     *service.OntologyService
+	stakeholders  *service.StakeholderService
+	projects      *service.ProjectService
+	workstreams   *service.WorkstreamService
+	raci          *service.RACIService
+	dashboard     *service.DashboardService
+	ai            *service.AIService
+	export        *service.ExportService
+	ontology      *service.OntologyService
 	tags          *sqlite.TagRepo
 	relationships *sqlite.RelationshipRepo
 	engagements   *sqlite.EngagementRepo
@@ -715,7 +715,7 @@ func (h *Handler) jsonError(w http.ResponseWriter, msg string, err error, status
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{"error": msg})
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
 func generateID() string {

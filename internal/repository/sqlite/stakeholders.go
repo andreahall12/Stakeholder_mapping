@@ -134,7 +134,7 @@ func (r *StakeholderRepo) Update(s *domain.Stakeholder) error {
 	if err != nil {
 		return fmt.Errorf("updating stakeholder: %w", err)
 	}
-	n, _ := result.RowsAffected()
+	n, _ := result.RowsAffected() //nolint:errcheck // SQLite driver never returns error here
 	if n == 0 {
 		return fmt.Errorf("stakeholder %s not found", s.ID)
 	}
@@ -148,7 +148,7 @@ func (r *StakeholderRepo) Delete(id string) error {
 	if err != nil {
 		return fmt.Errorf("deleting stakeholder: %w", err)
 	}
-	n, _ := result.RowsAffected()
+	n, _ := result.RowsAffected() //nolint:errcheck // SQLite driver never returns error here
 	if n == 0 {
 		return fmt.Errorf("stakeholder %s not found", id)
 	}

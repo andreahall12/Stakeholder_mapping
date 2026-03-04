@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -62,7 +63,12 @@ func (s *AIService) Chat(req ChatRequest) (*ChatResponse, error) {
 		return nil, fmt.Errorf("marshalling request: %w", err)
 	}
 
-	resp, err := s.client.Post(s.cfg.OllamaURL+"/api/chat", "application/json", bytes.NewReader(body))
+	httpReq, err := http.NewRequestWithContext(context.Background(), http.MethodPost, s.cfg.OllamaURL+"/api/chat", bytes.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("building request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	resp, err := s.client.Do(httpReq)
 	if err != nil {
 		s.logger.Error("ollama unavailable", "url", s.cfg.OllamaURL, "error", err)
 		return &ChatResponse{Error: "AI assistant is not available. Make sure Ollama is installed and running."}, nil
@@ -70,7 +76,7 @@ func (s *AIService) Chat(req ChatRequest) (*ChatResponse, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, _ := io.ReadAll(resp.Body) //nolint:errcheck // best-effort read of error response
 		return &ChatResponse{Error: fmt.Sprintf("Ollama error (status %d): %s", resp.StatusCode, string(respBody))}, nil
 	}
 

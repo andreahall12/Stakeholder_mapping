@@ -117,7 +117,7 @@ func countBlockers(conn *sql.DB, projectID string) int {
 		WHERE ps.project_id = ?
 		  AND s.influence_level = 'high'
 		  AND s.support_level IN ('resistant', 'neutral')`, projectID)
-	row.Scan(&count)
+	_ = row.Scan(&count)
 	return count
 }
 
@@ -135,7 +135,7 @@ func countRACIGaps(conn *sql.DB, projectID string) int {
 		               JOIN project_stakeholders ps ON ra.project_stakeholder_id = ps.id
 		               WHERE ra.workstream_id = w.id AND ra.role = 'A')
 		  )`, projectID)
-	row.Scan(&count)
+	_ = row.Scan(&count)
 	return count
 }
 

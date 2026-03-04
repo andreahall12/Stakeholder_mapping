@@ -45,18 +45,18 @@ func NewExportService(db *sqlite.DB, logger *slog.Logger) *ExportService {
 
 // FullExport contains every table in the database for sharing/backup.
 type FullExport struct {
-	Version               string                     `json:"version"`
-	ExportedAt            string                     `json:"exported_at"`
-	Projects              []domain.Project           `json:"projects"`
-	Stakeholders          []domain.Stakeholder       `json:"stakeholders"`
-	ProjectStakeholders   []domain.ProjectStakeholder `json:"project_stakeholders"`
-	Workstreams           []domain.Workstream        `json:"workstreams"`
-	RACIAssignments       []domain.RACIAssignment    `json:"raci_assignments"`
-	Relationships         []domain.Relationship      `json:"relationships"`
-	Tags                  []domain.Tag               `json:"tags"`
-	StakeholderTags       []domain.StakeholderTag    `json:"stakeholder_tags"`
-	CommunicationPlans    []commPlanExport           `json:"communication_plans"`
-	EngagementLogs        []domain.EngagementLog     `json:"engagement_logs"`
+	Version             string                      `json:"version"`
+	ExportedAt          string                      `json:"exported_at"`
+	Projects            []domain.Project            `json:"projects"`
+	Stakeholders        []domain.Stakeholder        `json:"stakeholders"`
+	ProjectStakeholders []domain.ProjectStakeholder `json:"project_stakeholders"`
+	Workstreams         []domain.Workstream         `json:"workstreams"`
+	RACIAssignments     []domain.RACIAssignment     `json:"raci_assignments"`
+	Relationships       []domain.Relationship       `json:"relationships"`
+	Tags                []domain.Tag                `json:"tags"`
+	StakeholderTags     []domain.StakeholderTag     `json:"stakeholder_tags"`
+	CommunicationPlans  []commPlanExport            `json:"communication_plans"`
+	EngagementLogs      []domain.EngagementLog      `json:"engagement_logs"`
 }
 
 // commPlanExport is a JSON-friendly version of CommunicationPlan.
@@ -137,7 +137,7 @@ func (s *ExportService) ImportFullJSON(r io.Reader) (*ImportResult, error) {
 		"workstreams", "project_stakeholders", "tags", "stakeholders", "projects",
 	}
 	for _, table := range clearTables {
-		if _, err := conn.Exec("DELETE FROM " + table); err != nil {
+		if _, err := conn.Exec("DELETE FROM " + table); err != nil { //nolint:gosec
 			s.logger.Warn("failed to clear table", "table", table, "error", err)
 		}
 	}

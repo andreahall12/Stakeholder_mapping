@@ -47,7 +47,7 @@ func New(dbPath string, logger *slog.Logger) (*DB, error) {
 	}
 	for _, p := range pragmas {
 		if _, err := conn.Exec(p); err != nil {
-			conn.Close()
+			_ = conn.Close()
 			return nil, fmt.Errorf("setting pragma %q: %w", p, err)
 		}
 	}
@@ -56,7 +56,7 @@ func New(dbPath string, logger *slog.Logger) (*DB, error) {
 
 	// Initialize schema
 	if err := db.initSchema(); err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, fmt.Errorf("initializing schema: %w", err)
 	}
 

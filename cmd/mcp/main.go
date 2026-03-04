@@ -261,7 +261,16 @@ func (s *MCPServer) handleToolCall(req jsonRPCRequest) jsonRPCResponse {
 		}
 	}
 
-	text, _ := json.MarshalIndent(result, "", "  ")
+	text, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return jsonRPCResponse{
+			JSONRPC: "2.0", ID: req.ID,
+			Result: map[string]interface{}{
+				"content": []map[string]string{{"type": "text", "text": "Error: " + err.Error()}},
+				"isError": true,
+			},
+		}
+	}
 	return jsonRPCResponse{
 		JSONRPC: "2.0", ID: req.ID,
 		Result: map[string]interface{}{
@@ -276,7 +285,9 @@ func (s *MCPServer) toolListStakeholders(args json.RawMessage) (interface{}, err
 		InfluenceLevel string `json:"influence_level"`
 		SupportLevel   string `json:"support_level"`
 	}
-	json.Unmarshal(args, &input)
+	if err := json.Unmarshal(args, &input); err != nil {
+		return nil, fmt.Errorf("invalid arguments: %w", err)
+	}
 
 	if input.ProjectID != "" {
 		return s.stakeholderSvc.ListByProject(input.ProjectID)
@@ -292,7 +303,9 @@ func (s *MCPServer) toolGetStakeholder(args json.RawMessage) (interface{}, error
 	var input struct {
 		ID string `json:"id"`
 	}
-	json.Unmarshal(args, &input)
+	if err := json.Unmarshal(args, &input); err != nil {
+		return nil, fmt.Errorf("invalid arguments: %w", err)
+	}
 	return s.stakeholderSvc.GetByID(input.ID)
 }
 
@@ -304,7 +317,9 @@ func (s *MCPServer) toolGetDashboardKPIs(args json.RawMessage) (interface{}, err
 	var input struct {
 		ProjectID string `json:"project_id"`
 	}
-	json.Unmarshal(args, &input)
+	if err := json.Unmarshal(args, &input); err != nil {
+		return nil, fmt.Errorf("invalid arguments: %w", err)
+	}
 	return s.dashboardSvc.GetKPIs(input.ProjectID)
 }
 
@@ -312,7 +327,9 @@ func (s *MCPServer) toolSearchStakeholders(args json.RawMessage) (interface{}, e
 	var input struct {
 		Query string `json:"query"`
 	}
-	json.Unmarshal(args, &input)
+	if err := json.Unmarshal(args, &input); err != nil {
+		return nil, fmt.Errorf("invalid arguments: %w", err)
+	}
 	return s.stakeholderSvc.List(map[string]string{"search": input.Query})
 }
 

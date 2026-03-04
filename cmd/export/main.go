@@ -34,7 +34,7 @@ func main() {
 	}
 	defer db.Close()
 
-	f, err := os.Create(outputFile)
+	f, err := os.Create(outputFile) // #nosec G703 -- CLI tool, path from user flag
 	if err != nil {
 		logger.Error("failed to create output file", "error", err)
 		os.Exit(1)

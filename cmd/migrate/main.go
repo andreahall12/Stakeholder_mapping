@@ -112,7 +112,7 @@ func main() {
 }
 
 func decodeBase64DB(path string) (string, error) {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) // #nosec G304 -- CLI tool, path comes from user flag
 	if err != nil {
 		return "", fmt.Errorf("reading file: %w", err)
 	}
@@ -133,7 +133,7 @@ func decodeBase64DB(path string) (string, error) {
 	}
 
 	tmpFile := filepath.Join(os.TempDir(), "stakeholder-migrate-legacy.db")
-	if err := os.WriteFile(tmpFile, decoded, 0600); err != nil {
+	if err := os.WriteFile(tmpFile, decoded, 0600); err != nil { // #nosec G703 -- safe temp path
 		return "", fmt.Errorf("writing temp file: %w", err)
 	}
 
@@ -164,7 +164,7 @@ func migrateTable(src, dst *sql.DB, table string, logger *slog.Logger) (int, err
 		}
 		cols = append(cols, name)
 	}
-	rows.Close()
+	_ = rows.Close()
 
 	if len(cols) == 0 {
 		return 0, nil
@@ -181,7 +181,7 @@ func migrateTable(src, dst *sql.DB, table string, logger *slog.Logger) (int, err
 	// Prepare insert
 	placeholders := strings.Repeat("?,", len(cols))
 	placeholders = placeholders[:len(placeholders)-1]
-	insertSQL := fmt.Sprintf("INSERT OR IGNORE INTO %s (%s) VALUES (%s)", table, colList, placeholders)
+	insertSQL := fmt.Sprintf("INSERT OR IGNORE INTO %s (%s) VALUES (%s)", table, colList, placeholders) // #nosec G201 -- table/cols from schema introspection, not user input
 
 	count := 0
 	for dataRows.Next() {

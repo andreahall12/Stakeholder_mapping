@@ -25,7 +25,7 @@ var templateFuncs = template.FuncMap{
 		if err != nil {
 			return template.JS("null")
 		}
-		return template.JS(b)
+		return template.JS(b) // #nosec G203 -- input is json.Marshal output, safe
 	},
 	"influencePct": func(total, count int) string {
 		if total == 0 {
@@ -117,7 +117,7 @@ func (h *Handler) clearDemoData(w http.ResponseWriter, r *http.Request) {
 		"stakeholders", "projects", "audit_log",
 	}
 	for _, t := range tables {
-		if _, err := conn.Exec("DELETE FROM " + t); err != nil {
+		if _, err := conn.Exec("DELETE FROM " + t); err != nil { //nolint:gosec
 			h.logger.Warn("failed to clear table", "table", t, "error", err)
 		}
 	}
@@ -139,7 +139,7 @@ func (h *Handler) loadDemoData(w http.ResponseWriter, r *http.Request) {
 		"stakeholders", "projects", "audit_log",
 	}
 	for _, t := range tables {
-		if _, err := conn.Exec("DELETE FROM " + t); err != nil {
+		if _, err := conn.Exec("DELETE FROM " + t); err != nil { //nolint:gosec
 			h.logger.Warn("failed to clear table during demo load", "table", t, "error", err)
 		}
 	}

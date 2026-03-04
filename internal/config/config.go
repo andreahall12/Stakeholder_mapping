@@ -36,8 +36,8 @@ func Load() (*Config, error) {
 		DBPath:      getEnv("STAKEHOLDER_DB_PATH", "stakeholder.db"),
 		OllamaURL:   getEnv("STAKEHOLDER_OLLAMA_URL", "http://localhost:11434"),
 		OllamaModel: getEnv("STAKEHOLDER_OLLAMA_MODEL", "llama3.2"),
-		APIKey:   getEnv("STAKEHOLDER_API_KEY", ""),
-		LogLevel: getEnv("STAKEHOLDER_LOG_LEVEL", "info"),
+		APIKey:      getEnv("STAKEHOLDER_API_KEY", ""),
+		LogLevel:    getEnv("STAKEHOLDER_LOG_LEVEL", "info"),
 	}
 
 	if err := cfg.validate(); err != nil {

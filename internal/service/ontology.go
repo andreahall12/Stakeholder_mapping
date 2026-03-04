@@ -75,7 +75,7 @@ func (s *OntologyService) ExportTurtle(w io.Writer, projectID string) error {
 `, escapeTurtleID(wsID), quoteTurtle(wsName), quoteTurtle(wsDesc), escapeTurtleID(id)))
 				}
 			}
-			wsRows.Close()
+			_ = wsRows.Close()
 		}
 	}
 
