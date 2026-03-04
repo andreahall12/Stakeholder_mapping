@@ -1,0 +1,236 @@
+{{define "content"}}
+<div class="container">
+    <div class="page-header">
+        <h2>Network Graph</h2>
+        <p class="text-muted">Click any person to see their details. Drag nodes to rearrange. Scroll to zoom.</p>
+    </div>
+
+    <!-- Legend (above graph so scroll-zoom doesn't hide it) -->
+    <div class="graph-legend" style="margin-top:0;margin-bottom:12px;">
+        <div class="legend-section">
+            <h4 class="legend-heading">Node Color = Support</h4>
+            <div class="legend-items">
+                <span class="legend-item"><span class="legend-dot" style="background:#3fb950"></span> Champion</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> Supporter</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#8b949e"></span> Neutral</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#f85149"></span> Resistant</span>
+            </div>
+        </div>
+        <div class="legend-section">
+            <h4 class="legend-heading">Node Size = Influence</h4>
+            <div class="legend-items">
+                <span class="legend-item"><span class="legend-circle lg"></span> High</span>
+                <span class="legend-item"><span class="legend-circle md"></span> Medium</span>
+                <span class="legend-item"><span class="legend-circle sm"></span> Low</span>
+            </div>
+        </div>
+        <div class="legend-section">
+            <h4 class="legend-heading">In-Node Label</h4>
+            <div class="legend-items">
+                <span class="legend-item" style="font-family:monospace;font-weight:700;color:var(--text-primary);">H/C</span>
+                <span class="legend-item" style="font-size:11px;">= Influence / Support</span>
+                <span class="legend-item" style="font-size:11px;color:var(--text-muted);">H=High M=Medium L=Low</span>
+                <span class="legend-item" style="font-size:11px;color:var(--text-muted);">C=Champion S=Supporter N=Neutral R=Resistant</span>
+            </div>
+        </div>
+        <div class="legend-section">
+            <h4 class="legend-heading">Arrows</h4>
+            <div class="legend-items">
+                <span class="legend-item"><span class="legend-line" style="background:#58a6ff"></span> Reports To</span>
+                <span class="legend-item"><span class="legend-line" style="background:#3fb950"></span> Allied With</span>
+                <span class="legend-item"><span class="legend-line legend-line-dashed" style="background:transparent;border-top:2px dashed #f85149"></span> Conflicts With</span>
+                <span class="legend-item"><span class="legend-line" style="background:#484f58"></span> Influences</span>
+            </div>
+        </div>
+        <div class="legend-section">
+            <h4 class="legend-heading">Line Thickness</h4>
+            <div class="legend-items">
+                <span class="legend-item"><span class="legend-line legend-thick" style="background:#484f58"></span> Strong</span>
+                <span class="legend-item"><span class="legend-line" style="background:#484f58"></span> Moderate</span>
+                <span class="legend-item"><span class="legend-line legend-thin" style="background:#484f58"></span> Weak</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="graph-container" id="network-graph" style="height: 600px; background: #161b22; border: 1px solid #30363d; border-radius: 8px;"></div>
+</div>
+
+<!-- Stakeholder Detail Modal -->
+<div class="modal" id="stakeholder-detail-modal" style="display:none">
+    <div class="modal-backdrop" id="stakeholder-detail-backdrop"></div>
+    <div class="modal-content">
+        <h3 id="sd-name"></h3>
+        <div class="detail-grid">
+            <div class="detail-row">
+                <span class="detail-label">Title</span>
+                <span class="detail-value" id="sd-title"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Department</span>
+                <span class="detail-value" id="sd-department"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email</span>
+                <span class="detail-value" id="sd-email"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Slack</span>
+                <span class="detail-value" id="sd-slack"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Influence</span>
+                <span class="detail-value" id="sd-influence"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Support</span>
+                <span class="detail-value" id="sd-support"></span>
+            </div>
+        </div>
+        <div id="sd-notes-section" style="display:none">
+            <h4 style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:16px 0 6px;">Notes</h4>
+            <p id="sd-notes" style="font-size:13px;color:var(--text-secondary);white-space:pre-wrap;"></p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" id="sd-close-btn">Close</button>
+        </div>
+    </div>
+</div>
+
+<script nonce="{{.Nonce}}" src="/static/js/vendor/cytoscape-3.30.4.min.js"></script>
+<script nonce="{{.Nonce}}">
+(function() {
+    var stakeholders = {{.Stakeholders | json}};
+    var relationships = {{.Relationships | json}};
+
+    var influenceInitial = { 'high': 'H', 'medium': 'M', 'low': 'L' };
+    var supportInitial = { 'champion': 'C', 'supporter': 'S', 'neutral': 'N', 'resistant': 'R' };
+
+    var stakeholderMap = {};
+    var nodes = stakeholders.map(function(s) {
+        stakeholderMap[s.id] = s;
+        return {
+            data: {
+                id: s.id,
+                label: s.name,
+                tag: (influenceInitial[s.influence_level] || '?') + '/' + (supportInitial[s.support_level] || '?'),
+                influence: s.influence_level,
+                support: s.support_level,
+                department: s.department
+            }
+        };
+    });
+
+    var edges = relationships.map(function(r) {
+        return {
+            data: {
+                id: r.id,
+                source: r.from_stakeholder_id,
+                target: r.to_stakeholder_id,
+                type: r.type,
+                strength: r.strength
+            }
+        };
+    });
+
+    var colorMap = {
+        'champion': '#3fb950', 'supporter': '#58a6ff',
+        'neutral': '#8b949e', 'resistant': '#f85149'
+    };
+    var sizeMap = { 'high': 50, 'medium': 35, 'low': 25 };
+
+    function tagSVG(tag, size) {
+        var fs = size >= 50 ? 15 : size >= 35 ? 12 : 10;
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '">'
+            + '<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" '
+            + 'fill="white" font-size="' + fs + '" font-weight="bold" font-family="ui-monospace,monospace">'
+            + tag + '</text></svg>';
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    var cy = cytoscape({
+        container: document.getElementById('network-graph'),
+        elements: { nodes: nodes, edges: edges },
+        style: [
+            { selector: 'node', style: {
+                'label': 'data(label)',
+                'background-color': function(ele) { return colorMap[ele.data('support')] || '#8b949e'; },
+                'background-image': function(ele) {
+                    var sz = sizeMap[ele.data('influence')] || 35;
+                    return tagSVG(ele.data('tag'), sz);
+                },
+                'background-image-opacity': 1,
+                'width': function(ele) { return sizeMap[ele.data('influence')] || 35; },
+                'height': function(ele) { return sizeMap[ele.data('influence')] || 35; },
+                'color': '#e6edf3',
+                'font-size': '11px',
+                'text-valign': 'bottom',
+                'text-halign': 'center',
+                'text-margin-y': 8,
+                'text-wrap': 'wrap',
+                'text-max-width': '100px',
+                'border-width': 2,
+                'border-color': '#30363d',
+                'text-outline-width': 2,
+                'text-outline-color': '#0d1117'
+            }},
+            { selector: 'node:selected', style: {
+                'border-color': '#e6edf3',
+                'border-width': 3
+            }},
+            { selector: 'edge', style: {
+                'line-color': '#484f58', 'target-arrow-color': '#484f58',
+                'target-arrow-shape': 'triangle', 'curve-style': 'bezier',
+                'width': function(ele) {
+                    return ele.data('strength') === 'strong' ? 3.5 : ele.data('strength') === 'moderate' ? 2 : 1;
+                }
+            }},
+            { selector: 'edge[type="conflicts_with"]', style: { 'line-color': '#f85149', 'target-arrow-color': '#f85149', 'line-style': 'dashed' }},
+            { selector: 'edge[type="allied_with"]', style: { 'line-color': '#3fb950', 'target-arrow-color': '#3fb950' }},
+            { selector: 'edge[type="reports_to"]', style: { 'line-color': '#58a6ff', 'target-arrow-color': '#58a6ff' }},
+            { selector: 'edge[type="influences"]', style: { 'line-color': '#484f58', 'target-arrow-color': '#484f58' }}
+        ],
+        layout: { name: 'cose', animate: true, animationDuration: 1000, randomize: false }
+    });
+
+    // Click on node to show stakeholder details
+    cy.on('tap', 'node', function(evt) {
+        var nodeId = evt.target.id();
+        var s = stakeholderMap[nodeId];
+        if (!s) return;
+
+        document.getElementById('sd-name').textContent = s.name;
+        document.getElementById('sd-title').textContent = s.job_title || '—';
+        document.getElementById('sd-department').textContent = s.department || '—';
+        document.getElementById('sd-email').textContent = s.email || '—';
+        document.getElementById('sd-slack').textContent = s.slack || '—';
+
+        var infEl = document.getElementById('sd-influence');
+        infEl.textContent = s.influence_level;
+        infEl.className = 'detail-value badge badge-influence-' + s.influence_level;
+
+        var supEl = document.getElementById('sd-support');
+        supEl.textContent = s.support_level;
+        supEl.className = 'detail-value badge badge-support-' + s.support_level;
+
+        var notesSection = document.getElementById('sd-notes-section');
+        var notesEl = document.getElementById('sd-notes');
+        if (s.notes && s.notes.trim() !== '') {
+            notesEl.textContent = s.notes;
+            notesSection.style.display = 'block';
+        } else {
+            notesSection.style.display = 'none';
+        }
+
+        showModal('stakeholder-detail-modal');
+    });
+
+    // Close modal handlers
+    document.getElementById('sd-close-btn').addEventListener('click', function() {
+        hideModal('stakeholder-detail-modal');
+    });
+    document.getElementById('stakeholder-detail-backdrop').addEventListener('click', function() {
+        hideModal('stakeholder-detail-modal');
+    });
+})();
+</script>
+{{end}}

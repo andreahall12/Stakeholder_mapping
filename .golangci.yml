@@ -1,0 +1,45 @@
+# golangci-lint configuration with security-focused rules
+run:
+  timeout: 5m
+  go: "1.25"
+
+linters:
+  enable:
+    # Security
+    - gosec          # Security-focused linter
+    - bodyclose      # Check HTTP body close
+    - noctx          # Check for http.Request without context
+
+    # Code quality
+    - errcheck       # Check error returns
+    - govet          # Go vet checks
+    - staticcheck    # Advanced static analysis
+    - unused         # Unused code detection
+    - ineffassign    # Detect ineffectual assignments
+    - typecheck      # Type checking
+
+    # Style
+    - gofmt          # Format checking
+    - goimports      # Import ordering
+    - misspell       # Spell checking
+
+linters-settings:
+  gosec:
+    severity: high
+    confidence: medium
+    excludes: []
+
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+
+  govet:
+    enable-all: true
+
+issues:
+  exclude-rules:
+    # Allow fmt.Errorf without wrapping in test files
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec

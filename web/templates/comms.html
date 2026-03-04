@@ -1,0 +1,167 @@
+{{define "content"}}
+<div class="container">
+    <div class="page-header">
+        <div>
+            <a href="/projects/{{.Project.ID}}" class="text-muted" style="font-size:13px;">&larr; Back to {{.Project.Name}}</a>
+            <h2>Communication Plan</h2>
+            <p class="text-muted">Manage how and when you communicate with each stakeholder on this project.</p>
+        </div>
+        <div class="page-actions">
+            <button class="btn btn-primary" id="add-comm-plan-btn">+ Add Comm Plan</button>
+        </div>
+    </div>
+
+    {{if .Plans}}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Stakeholder</th>
+                <th>Channel</th>
+                <th>Frequency</th>
+                <th>Notes / Update Type</th>
+                <th>Last Contact</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Plans}}
+            <tr>
+                <td class="font-medium">{{.StakeholderName}}</td>
+                <td><span class="badge badge-channel-{{.Channel}}">{{.Channel}}</span></td>
+                <td>{{.Frequency}}</td>
+                <td class="text-muted" style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{.Notes}}</td>
+                <td class="text-muted">{{if .LastContactDate}}{{.LastContactDate}}{{else}}Never{{end}}</td>
+                <td style="white-space:nowrap;">
+                    <button class="btn btn-secondary log-contact-btn" data-id="{{.ID}}" style="font-size:11px;padding:3px 8px;">Log Contact</button>
+                    <button class="btn btn-icon delete-comm-btn" data-id="{{.ID}}" title="Delete">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                    </button>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <div class="empty-state">
+        <p>No communication plans yet. Click "+ Add Comm Plan" to set up how you'll communicate with each stakeholder.</p>
+    </div>
+    {{end}}
+</div>
+
+<!-- Add Comm Plan Modal -->
+<div class="modal" id="add-comm-modal" style="display:none">
+    <div class="modal-backdrop" id="add-comm-backdrop"></div>
+    <div class="modal-content">
+        <h3>New Communication Plan</h3>
+        <form id="add-comm-form">
+            <div class="form-group">
+                <label>Stakeholder</label>
+                <select name="project_stakeholder_id" class="input" required>
+                    <option value="">Select a stakeholder...</option>
+                    {{range .PSOptions}}
+                    <option value="{{.PSID}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Channel</label>
+                    <select name="channel" class="input" required>
+                        <option value="email">Email</option>
+                        <option value="slack">Slack</option>
+                        <option value="meeting">Meeting</option>
+                        <option value="briefing">Briefing</option>
+                        <option value="jira">Jira</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Frequency</label>
+                    <select name="frequency" class="input" required>
+                        <option value="weekly">Weekly</option>
+                        <option value="biweekly">Biweekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="daily">Daily</option>
+                        <option value="as-needed">As Needed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notes / Type of Updates</label>
+                <textarea name="notes" class="input" rows="3" placeholder="e.g. Status reports, escalations, decision requests..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" id="add-comm-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script nonce="{{.Nonce}}">
+(function() {
+    // Open/close modal
+    var addBtn = document.getElementById("add-comm-plan-btn");
+    var cancelBtn = document.getElementById("add-comm-cancel");
+    var backdrop = document.getElementById("add-comm-backdrop");
+    if (addBtn) addBtn.addEventListener("click", function() { showModal("add-comm-modal"); });
+    if (cancelBtn) cancelBtn.addEventListener("click", function() { hideModal("add-comm-modal"); });
+    if (backdrop) backdrop.addEventListener("click", function() { hideModal("add-comm-modal"); });
+
+    // Create comm plan
+    var form = document.getElementById("add-comm-form");
+    if (form) {
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            var fd = new FormData(form);
+            fetch("/api/v1/comms", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    project_stakeholder_id: fd.get("project_stakeholder_id"),
+                    channel: fd.get("channel"),
+                    frequency: fd.get("frequency"),
+                    notes: fd.get("notes")
+                })
+            }).then(function(resp) {
+                if (resp.ok) { location.reload(); }
+                else { showToast("Failed to create comm plan", "error"); }
+            });
+        });
+    }
+
+    // Log contact buttons
+    document.querySelectorAll(".log-contact-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            var id = btn.getAttribute("data-id");
+            fetch("/api/v1/comms/" + id + "/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            }).then(function(resp) {
+                if (resp.ok) {
+                    showToast("Contact logged for today", "success");
+                    location.reload();
+                } else {
+                    showToast("Failed to log contact", "error");
+                }
+            });
+        });
+    });
+
+    // Delete buttons
+    document.querySelectorAll(".delete-comm-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            if (!confirm("Delete this communication plan?")) return;
+            var id = btn.getAttribute("data-id");
+            fetch("/api/v1/comms/" + id, {
+                method: "DELETE"
+            }).then(function(resp) {
+                if (resp.ok) { location.reload(); }
+                else { showToast("Failed to delete", "error"); }
+            });
+        });
+    });
+})();
+</script>
+{{end}}

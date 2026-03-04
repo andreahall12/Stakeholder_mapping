@@ -1,0 +1,18 @@
+{{if .KPIs}}
+<div class="kpi-card">
+    <div class="kpi-label">Total Stakeholders</div>
+    <div class="kpi-value">{{.KPIs.TotalStakeholders}}</div>
+</div>
+<div class="kpi-card{{if gt .KPIs.Blockers 0}} accent-red{{end}}">
+    <div class="kpi-label">Blockers</div>
+    <div class="kpi-value">{{.KPIs.Blockers}}</div>
+</div>
+<div class="kpi-card{{if gt .KPIs.RACIGaps 0}} accent-yellow{{end}}">
+    <div class="kpi-label">RACI Gaps</div>
+    <div class="kpi-value">{{.KPIs.RACIGaps}}</div>
+</div>
+<div class="kpi-card{{if gt .KPIs.OverdueContacts 0}} accent-yellow{{end}}">
+    <div class="kpi-label">Overdue Contacts</div>
+    <div class="kpi-value">{{.KPIs.OverdueContacts}}</div>
+</div>
+{{end}}

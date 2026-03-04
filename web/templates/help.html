@@ -1,0 +1,123 @@
+{{define "content"}}
+<div class="container">
+    <div class="page-header">
+        <h2>Help</h2>
+    </div>
+
+    <div class="help-content">
+
+        <div class="help-section">
+            <h3>What is this tool?</h3>
+            <p>The Stakeholder Mapping Tool helps you track and manage the people involved in your programs. You can map who matters, assign responsibilities, track engagement, spot risks, and visualize relationships.</p>
+        </div>
+
+        <div class="help-section">
+            <h3>Pages</h3>
+            <table class="table">
+                <thead><tr><th>Page</th><th>What it shows</th></tr></thead>
+                <tbody>
+                    <tr><td class="font-medium">Dashboard</td><td>Your projects, stakeholder list with search and filters, KPI summary</td></tr>
+                    <tr><td class="font-medium">Network Graph</td><td>Interactive map of who reports to, influences, or conflicts with whom. Click any node to see details.</td></tr>
+                    <tr><td class="font-medium">Influence Matrix</td><td>2D grid of influence level vs. support stance. Spot blockers (top-left) and allies (top-right) at a glance.</td></tr>
+                    <tr><td class="font-medium">Org Chart</td><td>Reporting hierarchy based on "reports to" relationships, color-coded by department.</td></tr>
+                    <tr><td class="font-medium">RACI Matrix</td><td>Who is Responsible, Accountable, Consulted, or Informed for each workstream. Access from a project detail page.</td></tr>
+                    <tr><td class="font-medium">Comms Plan</td><td>Communication preferences and cadence for each stakeholder on a project. Access from a project detail page.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="help-section">
+            <h3>Project Statuses</h3>
+            <table class="table">
+                <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="badge badge-planning">planning</span></td><td>Project is being set up and scoped. Not yet underway.</td></tr>
+                    <tr><td><span class="badge badge-active">active</span></td><td>Project is in progress. This is the default for new projects.</td></tr>
+                    <tr><td><span class="badge badge-archived">archived</span></td><td>Project is complete or shelved. Still visible but no longer active.</td></tr>
+                </tbody>
+            </table>
+            <p>You can change a project's status from its detail page using the dropdown next to the project name.</p>
+        </div>
+
+        <div class="help-section">
+            <h3>Influence &amp; Support Levels</h3>
+            <p><strong>Influence</strong> is how much power a stakeholder has over the project's success:</p>
+            <ul>
+                <li><span class="badge badge-influence-high">high</span> — Can make or break the project. Executive sponsors, budget holders.</li>
+                <li><span class="badge badge-influence-medium">medium</span> — Significant input. Team leads, key SMEs.</li>
+                <li><span class="badge badge-influence-low">low</span> — Limited direct influence. Keep informed.</li>
+            </ul>
+            <p style="margin-top:12px"><strong>Support</strong> is their stance toward the project:</p>
+            <ul>
+                <li><span class="badge badge-support-champion">champion</span> — Actively advocates for the project.</li>
+                <li><span class="badge badge-support-supporter">supporter</span> — Generally positive and cooperative.</li>
+                <li><span class="badge badge-support-neutral">neutral</span> — No strong opinion yet. Could go either way.</li>
+                <li><span class="badge badge-support-resistant">resistant</span> — Opposes or blocks the project. Needs engagement.</li>
+            </ul>
+            <p style="margin-top:12px"><strong>Blockers</strong> are stakeholders with <em>high influence</em> and <em>resistant or neutral</em> support. Focus your engagement here.</p>
+        </div>
+
+        <div class="help-section">
+            <h3>Keyboard Shortcuts</h3>
+            <table class="table">
+                <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr><td><code>Ctrl+K</code> / <code>Cmd+K</code></td><td>Focus the search box</td></tr>
+                    <tr><td><code>Ctrl+N</code> / <code>Cmd+N</code></td><td>Open "New Stakeholder" form</td></tr>
+                    <tr><td><code>Escape</code></td><td>Close any open dialog</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="help-section">
+            <h3>Exporting &amp; Sharing Data</h3>
+            <p>Click the <strong>Export</strong> button in the top-right corner to download a full JSON backup of your data.</p>
+            <p>To share with a teammate, use the terminal:</p>
+            <ul>
+                <li><code>make export</code> — saves everything to <code>stakeholder-export.json</code></li>
+                <li>Send that file to your teammate</li>
+                <li>They run <code>make import FILE=stakeholder-export.json</code> to load it</li>
+            </ul>
+            <p>Other export formats available while the tool is running:</p>
+            <ul>
+                <li><strong>CSV</strong> (for Excel): <code>/api/v1/export/stakeholders.csv</code></li>
+                <li><strong>JSON</strong> (stakeholders only): <code>/api/v1/export/stakeholders.json</code></li>
+            </ul>
+        </div>
+
+        <div class="help-section">
+            <h3>AI Assistant (Optional)</h3>
+            <p>The tool includes an AI chat assistant that can generate meeting briefs, draft emails, and analyze blockers. It requires <strong>Ollama</strong>, a free tool that runs AI models on your computer.</p>
+            <p><strong>Setup:</strong></p>
+            <ol>
+                <li>Download and install Ollama from <a href="https://ollama.ai/" style="color:var(--accent-blue)">ollama.ai</a></li>
+                <li>Open a separate terminal and run: <code>ollama serve</code></li>
+                <li>Download a model: <code>ollama pull llama3.2</code></li>
+                <li>Restart this tool — the AI chat button will appear in the bottom-right corner</li>
+            </ol>
+            <p>If Ollama is not running, the chat will show a friendly message. Nothing breaks.</p>
+        </div>
+
+        <div class="help-section">
+            <h3>How Data is Stored</h3>
+            <p>Your data is stored in a local SQLite database file called <code>stakeholder.db</code> in the project folder. No external database server is needed — everything runs on your computer.</p>
+            <p>The database is created automatically the first time you start the tool. To start completely fresh, run <code>make reset</code> in the terminal.</p>
+        </div>
+
+        <div class="help-section">
+            <h3>Troubleshooting</h3>
+            <table class="table">
+                <thead><tr><th>Problem</th><th>Fix</th></tr></thead>
+                <tbody>
+                    <tr><td>Page won't load</td><td>Make sure the tool is running (check your terminal for "Stakeholder Tool running at...")</td></tr>
+                    <tr><td>Port already in use</td><td>Run with a different port: <code>STAKEHOLDER_PORT=3000 make run</code></td></tr>
+                    <tr><td>AI chat says unavailable</td><td>Ollama isn't running. Open a terminal and run <code>ollama serve</code></td></tr>
+                    <tr><td>Need to start over</td><td>Run <code>make reset</code> then <code>make run</code> in your terminal</td></tr>
+                    <tr><td>Want to try the demo again</td><td>Click the "Load Demo Data" button on an empty dashboard, or run <code>make demo</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+{{end}}

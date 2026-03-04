@@ -1,0 +1,37 @@
+# Binaries
+stakeholder-tool
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Database files
+*.db
+*.db-wal
+*.db-shm
+
+# Test coverage
+coverage.out
+*.coverprofile
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Build
+dist/
+
+# Export files (may contain sensitive stakeholder data)
+stakeholder-export.json
+*.export.json

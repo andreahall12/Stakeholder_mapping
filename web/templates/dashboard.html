@@ -1,0 +1,213 @@
+{{define "content"}}
+<div class="container">
+    <div class="page-header">
+        <h2>Dashboard</h2>
+        <div class="page-actions">
+            <button class="btn btn-primary" onclick="showModal('new-project-modal')">+ New Project</button>
+            <button class="btn btn-secondary" onclick="showModal('new-stakeholder-modal')">+ New Stakeholder</button>
+        </div>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Projects</div>
+            <div class="kpi-value">{{len .Projects}}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Stakeholders</div>
+            <div class="kpi-value">{{len .Stakeholders}}</div>
+        </div>
+        <div class="kpi-card accent-green">
+            <div class="kpi-label">Active Projects</div>
+            <div class="kpi-value">{{.ActiveProjects}}</div>
+        </div>
+    </div>
+
+    {{if .IsEmpty}}
+    <!-- Welcome / Empty State -->
+    <div class="welcome-card">
+        <h3>Welcome to Stakeholder Mapping</h3>
+        <p>You don't have any data yet. You can create your first project above, or load the demo to see how things work.</p>
+        <div class="welcome-actions">
+            <form method="POST" action="/demo/load" style="margin:0;display:inline">
+                <button type="submit" class="btn btn-demo-load" id="load-demo-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Load Demo Data
+                </button>
+            </form>
+            <span class="welcome-hint">Loads a sample project with 12 stakeholders so you can explore every feature</span>
+        </div>
+    </div>
+    {{end}}
+
+    <!-- Projects List -->
+    <div class="section">
+        <h3 class="section-title">Projects</h3>
+        {{if .Projects}}
+        <div class="card-grid">
+            {{range .Projects}}
+            <a href="/projects/{{.ID}}" class="project-card">
+                <div class="project-card-header">
+                    <span class="project-name">{{.Name}}</span>
+                    <span class="badge badge-{{.Status}}">{{.Status}}</span>
+                </div>
+                <p class="project-desc">{{.Description}}</p>
+                <div class="project-stats">
+                    <span>{{.StakeholderCount}} stakeholders</span>
+                    <span>{{.WorkstreamCount}} workstreams</span>
+                </div>
+            </a>
+            {{end}}
+        </div>
+        {{else if not .IsEmpty}}
+        <div class="empty-state">
+            <p>No projects yet. Create one to get started.</p>
+        </div>
+        {{end}}
+    </div>
+
+    <!-- Stakeholders List -->
+    <div class="section">
+        <div class="section-header">
+            <h3 class="section-title">All Stakeholders</h3>
+            <div class="filter-bar">
+                <input type="search" placeholder="Search stakeholders..."
+                       class="input"
+                       hx-get="/partials/stakeholder-list"
+                       hx-trigger="input changed delay:300ms"
+                       hx-target="#stakeholder-list"
+                       name="search">
+                <select class="input" name="influence_level"
+                        hx-get="/partials/stakeholder-list"
+                        hx-trigger="change"
+                        hx-target="#stakeholder-list"
+                        hx-include="[name='search']">
+                    <option value="">All Influence</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+        </div>
+        <div id="stakeholder-list">
+            {{if .Stakeholders}}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th><th>Title</th><th>Department</th><th>Influence</th><th>Support</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Stakeholders}}
+                    <tr>
+                        <td class="font-medium">{{.Name}}</td>
+                        <td class="text-muted">{{.JobTitle}}</td>
+                        <td class="text-muted">{{.Department}}</td>
+                        <td><span class="badge badge-influence-{{.InfluenceLevel}}">{{.InfluenceLevel}}</span></td>
+                        <td><span class="badge badge-support-{{.SupportLevel}}">{{.SupportLevel}}</span></td>
+                        <td>
+                            <button class="btn btn-icon" hx-delete="/api/v1/stakeholders/{{.ID}}" hx-confirm="Delete this stakeholder?" hx-swap="none" hx-on::after-request="location.reload()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                            </button>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            {{else}}
+            <div class="empty-state"><p>No stakeholders found.</p></div>
+            {{end}}
+        </div>
+    </div>
+</div>
+
+<!-- New Project Modal -->
+<div id="new-project-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop" onclick="hideModal('new-project-modal')"></div>
+    <div class="modal-content">
+        <h3>New Project</h3>
+        <form hx-post="/api/v1/projects" hx-swap="none" hx-on::after-request="if(event.detail.successful) { hideModal('new-project-modal'); location.reload(); }">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" class="input" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" class="input" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" class="input">
+                    <option value="active">Active</option>
+                    <option value="planning">Planning</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="hideModal('new-project-modal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- New Stakeholder Modal -->
+<div id="new-stakeholder-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop" onclick="hideModal('new-stakeholder-modal')"></div>
+    <div class="modal-content">
+        <h3>New Stakeholder</h3>
+        <form hx-post="/api/v1/stakeholders" hx-swap="none" hx-on::after-request="if(event.detail.successful) { hideModal('new-stakeholder-modal'); location.reload(); }">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" class="input" required>
+                </div>
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" name="job_title" class="input">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Department</label>
+                    <input type="text" name="department" class="input">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="input">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Influence</label>
+                    <select name="influence_level" class="input">
+                        <option value="high">High</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Support</label>
+                    <select name="support_level" class="input">
+                        <option value="champion">Champion</option>
+                        <option value="supporter">Supporter</option>
+                        <option value="neutral" selected>Neutral</option>
+                        <option value="resistant">Resistant</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea name="notes" class="input" rows="3"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="hideModal('new-stakeholder-modal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{end}}

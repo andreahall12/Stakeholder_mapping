@@ -1,0 +1,93 @@
+{{define "content"}}
+<div class="container">
+    <div class="page-header">
+        <h2>Influence Matrix</h2>
+        <p class="text-muted">Map stakeholders by influence level and support stance</p>
+    </div>
+    <div class="influence-matrix" id="influence-matrix">
+        <div class="matrix-labels-y">
+            <span>High Influence</span>
+            <span>Medium</span>
+            <span>Low Influence</span>
+        </div>
+        <div class="matrix-grid">
+            <!-- Row 1: High influence -->
+            <div class="matrix-cell cell-danger" data-influence="high" data-support="resistant">
+                <div class="cell-label">Keep Satisfied</div>
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "high") (eq (printf "%s" .SupportLevel) "resistant")}}
+                <div class="matrix-dot dot-resistant" title="{{.Name}} - {{.JobTitle}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell cell-warning" data-influence="high" data-support="neutral">
+                <div class="cell-label">Manage Closely</div>
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "high") (eq (printf "%s" .SupportLevel) "neutral")}}
+                <div class="matrix-dot dot-neutral" title="{{.Name}} - {{.JobTitle}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell cell-info" data-influence="high" data-support="supporter">
+                <div class="cell-label">Key Players</div>
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "high") (eq (printf "%s" .SupportLevel) "supporter")}}
+                <div class="matrix-dot dot-supporter" title="{{.Name}} - {{.JobTitle}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell cell-success" data-influence="high" data-support="champion">
+                <div class="cell-label">Champions</div>
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "high") (eq (printf "%s" .SupportLevel) "champion")}}
+                <div class="matrix-dot dot-champion" title="{{.Name}} - {{.JobTitle}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+
+            <!-- Row 2: Medium influence -->
+            <div class="matrix-cell" data-influence="medium" data-support="resistant">
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "medium") (eq (printf "%s" .SupportLevel) "resistant")}}
+                <div class="matrix-dot dot-resistant" title="{{.Name}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell" data-influence="medium" data-support="neutral">
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "medium") (eq (printf "%s" .SupportLevel) "neutral")}}
+                <div class="matrix-dot dot-neutral" title="{{.Name}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell" data-influence="medium" data-support="supporter">
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "medium") (eq (printf "%s" .SupportLevel) "supporter")}}
+                <div class="matrix-dot dot-supporter" title="{{.Name}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell" data-influence="medium" data-support="champion">
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "medium") (eq (printf "%s" .SupportLevel) "champion")}}
+                <div class="matrix-dot dot-champion" title="{{.Name}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+
+            <!-- Row 3: Low influence -->
+            <div class="matrix-cell" data-influence="low" data-support="resistant">
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "low") (eq (printf "%s" .SupportLevel) "resistant")}}
+                <div class="matrix-dot dot-resistant" title="{{.Name}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell" data-influence="low" data-support="neutral">
+                <div class="cell-label">Monitor</div>
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "low") (eq (printf "%s" .SupportLevel) "neutral")}}
+                <div class="matrix-dot dot-neutral" title="{{.Name}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell" data-influence="low" data-support="supporter">
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "low") (eq (printf "%s" .SupportLevel) "supporter")}}
+                <div class="matrix-dot dot-supporter" title="{{.Name}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+            <div class="matrix-cell" data-influence="low" data-support="champion">
+                {{range .Stakeholders}}{{if and (eq (printf "%s" .InfluenceLevel) "low") (eq (printf "%s" .SupportLevel) "champion")}}
+                <div class="matrix-dot dot-champion" title="{{.Name}}">{{slice .Name 0 1}}</div>
+                {{end}}{{end}}
+            </div>
+        </div>
+        <div class="matrix-labels-x">
+            <span>Resistant</span>
+            <span>Neutral</span>
+            <span>Supporter</span>
+            <span>Champion</span>
+        </div>
+    </div>
+</div>
+{{end}}

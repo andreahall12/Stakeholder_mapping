@@ -1,0 +1,24 @@
+{{define "content"}}
+<div class="container">
+    <div class="page-header">
+        <div>
+            <a href="/projects/{{.Project.ID}}" class="text-muted" style="font-size:13px;">&larr; Back to Project</a>
+            <h2>RACI Matrix — {{.Project.Name}}</h2>
+        </div>
+    </div>
+
+    <div id="raci-grid" hx-get="/partials/raci-grid/{{.Project.ID}}" hx-trigger="load">
+        <div class="loading">Loading RACI matrix...</div>
+    </div>
+
+    <div class="section" style="margin-top:24px;">
+        <h3 class="section-title">Legend</h3>
+        <div class="legend-row">
+            <span class="badge badge-raci-R">R — Responsible</span>
+            <span class="badge badge-raci-A">A — Accountable</span>
+            <span class="badge badge-raci-C">C — Consulted</span>
+            <span class="badge badge-raci-I">I — Informed</span>
+        </div>
+    </div>
+</div>
+{{end}}

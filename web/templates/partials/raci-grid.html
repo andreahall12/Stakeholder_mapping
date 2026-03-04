@@ -1,0 +1,33 @@
+{{if and .Workstreams .Stakeholders}}
+<table class="table raci-table">
+    <thead>
+        <tr>
+            <th>Workstream</th>
+            {{range .Stakeholders}}
+            <th class="raci-header">{{.Name}}</th>
+            {{end}}
+        </tr>
+    </thead>
+    <tbody>
+        {{$assignments := .Assignments}}
+        {{range $ws := .Workstreams}}
+        <tr>
+            <td class="font-medium">{{$ws.Name}}</td>
+            {{range $.Stakeholders}}
+            <td class="raci-cell">
+                {{range $assignments}}
+                {{if and (eq .WorkstreamName $ws.Name) (eq .StakeholderName $.Name)}}
+                <span class="badge badge-raci-{{.Role}}">{{.Role}}</span>
+                {{end}}
+                {{end}}
+            </td>
+            {{end}}
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{else}}
+<div class="empty-state">
+    <p>Add workstreams and assign stakeholders to see the RACI matrix.</p>
+</div>
+{{end}}

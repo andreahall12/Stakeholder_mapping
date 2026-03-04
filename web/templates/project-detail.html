@@ -1,0 +1,110 @@
+{{define "content"}}
+<div class="container">
+    <div class="page-header">
+        <div>
+            <a href="/" class="text-muted" style="font-size:13px;">&larr; Back to Dashboard</a>
+            <h2>{{.Project.Name}}</h2>
+            <p class="text-muted">{{.Project.Description}}</p>
+        </div>
+        <div class="page-actions">
+            <select class="input status-select" id="project-status-select" data-project-id="{{.Project.ID}}" style="width:auto;min-width:120px;">
+                <option value="planning"{{if eq .Project.Status "planning"}} selected{{end}}>Planning</option>
+                <option value="active"{{if eq .Project.Status "active"}} selected{{end}}>Active</option>
+                <option value="archived"{{if eq .Project.Status "archived"}} selected{{end}}>Archived</option>
+            </select>
+            <a href="/raci/{{.Project.ID}}" class="btn btn-secondary">RACI Matrix</a>
+            <a href="/comms/{{.Project.ID}}" class="btn btn-secondary">Comms Plan</a>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    {{if .KPIs}}
+    <div class="kpi-grid" id="project-kpis" hx-get="/partials/project-kpis/{{.Project.ID}}" hx-trigger="every 30s">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Stakeholders</div>
+            <div class="kpi-value">{{.KPIs.TotalStakeholders}}</div>
+        </div>
+        <div class="kpi-card{{if gt .KPIs.Blockers 0}} accent-red{{end}}">
+            <div class="kpi-label">Blockers</div>
+            <div class="kpi-value">{{.KPIs.Blockers}}</div>
+        </div>
+        <div class="kpi-card{{if gt .KPIs.RACIGaps 0}} accent-yellow{{end}}">
+            <div class="kpi-label">RACI Gaps</div>
+            <div class="kpi-value">{{.KPIs.RACIGaps}}</div>
+        </div>
+        <div class="kpi-card{{if gt .KPIs.OverdueContacts 0}} accent-yellow{{end}}">
+            <div class="kpi-label">Overdue Contacts</div>
+            <div class="kpi-value">{{.KPIs.OverdueContacts}}</div>
+        </div>
+    </div>
+    {{end}}
+
+    <!-- Influence Breakdown -->
+    {{if .KPIs}}
+    <div class="section">
+        <h3 class="section-title">Influence Distribution</h3>
+        <div class="bar-chart">
+            <div class="bar-row">
+                <span class="bar-label">High</span>
+                <div class="bar-track"><div class="bar-fill bar-high" style="width: {{influencePct .KPIs.TotalStakeholders .KPIs.ByInfluence.high}}%"></div></div>
+                <span class="bar-count">{{.KPIs.ByInfluence.high}}</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">Medium</span>
+                <div class="bar-track"><div class="bar-fill bar-medium" style="width: {{influencePct .KPIs.TotalStakeholders .KPIs.ByInfluence.medium}}%"></div></div>
+                <span class="bar-count">{{.KPIs.ByInfluence.medium}}</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-label">Low</span>
+                <div class="bar-track"><div class="bar-fill bar-low" style="width: {{influencePct .KPIs.TotalStakeholders .KPIs.ByInfluence.low}}%"></div></div>
+                <span class="bar-count">{{.KPIs.ByInfluence.low}}</span>
+            </div>
+        </div>
+    </div>
+    {{end}}
+
+    <!-- Workstreams -->
+    <div class="section">
+        <h3 class="section-title">Workstreams ({{len .Workstreams}})</h3>
+        {{if .Workstreams}}
+        <div class="card-grid">
+            {{range .Workstreams}}
+            <div class="workstream-card">
+                <span class="font-medium">{{.Name}}</span>
+                <p class="text-muted">{{.Description}}</p>
+            </div>
+            {{end}}
+        </div>
+        {{else}}
+        <div class="empty-state"><p>No workstreams yet.</p></div>
+        {{end}}
+    </div>
+
+    <!-- Stakeholders -->
+    <div class="section">
+        <h3 class="section-title">Project Stakeholders ({{len .Stakeholders}})</h3>
+        {{if .Stakeholders}}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th><th>Title</th><th>Department</th><th>Influence</th><th>Support</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Stakeholders}}
+                <tr>
+                    <td class="font-medium">{{.Name}}</td>
+                    <td class="text-muted">{{.JobTitle}}</td>
+                    <td class="text-muted">{{.Department}}</td>
+                    <td><span class="badge badge-influence-{{.InfluenceLevel}}">{{.InfluenceLevel}}</span></td>
+                    <td><span class="badge badge-support-{{.SupportLevel}}">{{.SupportLevel}}</span></td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <div class="empty-state"><p>No stakeholders assigned.</p></div>
+        {{end}}
+    </div>
+</div>
+{{end}}

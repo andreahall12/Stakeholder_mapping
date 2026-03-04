@@ -1,0 +1,36 @@
+{{if .Stakeholders}}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Department</th>
+            <th>Influence</th>
+            <th>Support</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Stakeholders}}
+        <tr>
+            <td class="font-medium">{{.Name}}</td>
+            <td class="text-muted">{{.JobTitle}}</td>
+            <td class="text-muted">{{.Department}}</td>
+            <td><span class="badge badge-influence-{{.InfluenceLevel}}">{{.InfluenceLevel}}</span></td>
+            <td><span class="badge badge-support-{{.SupportLevel}}">{{.SupportLevel}}</span></td>
+            <td>
+                <button class="btn btn-icon" hx-delete="/api/v1/stakeholders/{{.ID}}" hx-confirm="Delete?" hx-swap="none" hx-on::after-request="location.reload()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                    </svg>
+                </button>
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{else}}
+<div class="empty-state">
+    <p>No stakeholders found.</p>
+</div>
+{{end}}
